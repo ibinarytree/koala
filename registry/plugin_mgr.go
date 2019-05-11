@@ -54,5 +54,5 @@ func RegisterPlugin(registry Registry) (err error) {
 
 // 初始化注册中心
 func InitRegistry(ctx context.Context, name string, opts ...Option) (registry Registry, err error) {
-	return pluginMgr.initRegistry(ctx, name)
+	return pluginMgr.initRegistry(ctx, name, opts...)
 }
