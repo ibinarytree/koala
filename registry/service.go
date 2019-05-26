@@ -8,7 +8,8 @@ type Service struct {
 
 // 服务节点的抽象
 type Node struct {
-	Id   string `json:"id"`
-	IP   string `json:"ip"`
-	Port int    `json:"port"`
+	Id     string `json:"id"`
+	IP     string `json:"ip"`
+	Port   int    `json:"port"`
+	Weight int    `json:"weight"`
 }
