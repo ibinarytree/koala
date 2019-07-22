@@ -14,7 +14,7 @@ type CtrlGenerator struct {
 	rpc      []*proto.RPC
 }
 
-func (d *CtrlGenerator) Run(opt *Option) (err error) {
+func (d *CtrlGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) {
 
 	reader, err := os.Open(opt.Proto3Filename)
 	if err != nil {

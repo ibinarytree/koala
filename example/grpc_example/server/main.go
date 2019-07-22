@@ -3,6 +3,7 @@ package main
 // server.go
 
 import (
+	"fmt"
 	"log"
 	"net"
 
@@ -18,7 +19,7 @@ const (
 type server struct{}
 
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloResponse, error) {
-	return &pb.HelloResponse{Reply: "你好 " + in.Name}, nil
+	return &pb.HelloResponse{Reply: "你好 " + in.Name}, fmt.Errorf("hello error")
 }
 
 func main() {

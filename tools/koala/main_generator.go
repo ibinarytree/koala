@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"text/template"
 )
 
 type MainGenerator struct {
 }
 
-func (d *MainGenerator) Run(opt *Option) (err error) {
+func (d *MainGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) {
 
 	filename := path.Join("./", opt.Output, "main/main.go")
 	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
@@ -19,56 +20,26 @@ func (d *MainGenerator) Run(opt *Option) (err error) {
 	}
 
 	defer file.Close()
-	/*
-		"net"
-
-		pb "github.com/ibinarytree/koala/example/grpc_example/hello"
-		"golang.org/x/net/context"
-		"google.golang.org/grpc"
-	*/
-	fmt.Fprintf(file, "package main\n")
-	fmt.Fprintf(file, "import(\n")
-	fmt.Fprintf(file, `"net"`)
-	fmt.Fprintln(file)
-
-	fmt.Fprintf(file, `"log"`)
-	fmt.Fprintln(file)
-
-	fmt.Fprintf(file, `"google.golang.org/grpc"`)
-	fmt.Fprintln(file)
-
-	fmt.Fprintf(file, `"github.com/ibinarytree/koala/tools/koala/output/controller"`)
-	fmt.Fprintln(file)
-
-	fmt.Fprintf(file, `hello "github.com/ibinarytree/koala/tools/koala/output/generate"`)
-	fmt.Fprintln(file)
-
-	fmt.Fprintln(file, ")\n")
-
-	fmt.Fprintf(file, "var server = &controller.Server{}\n")
-	fmt.Fprint(file, "\n\n")
-
-	fmt.Fprintf(file, "var port= \":12345\"\n")
-	fmt.Fprint(file, "\n\n")
-
-	fmt.Fprintf(file, `
-		
-func main() {
-	lis, err := net.Listen("tcp", port)
+	err = d.render(file, main_template, metaData)
 	if err != nil {
-		log.Fatal("failed to listen: %v", err)
+		fmt.Printf("render failed, err:%v\n", err)
+		return
 	}
-	s := grpc.NewServer()
-	hello.RegisterHelloServiceServer(s, server)
-	s.Serve(lis)
+	return
 }
-		
-		`)
+
+func (d *MainGenerator) render(file *os.File, data string, metaData *ServiceMetaData) (err error) {
+	t := template.New("main")
+	t, err = t.Parse(data)
+	if err != nil {
+		return
+	}
+
+	err = t.Execute(file, metaData)
 	return
 }
 
 func init() {
 	dir := &MainGenerator{}
-
 	Register("main generator", dir)
 }

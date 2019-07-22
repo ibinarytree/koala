@@ -36,9 +36,11 @@ func (d *DirGenerator) Run(opt *Option) (err error) {
 }
 
 func init() {
-	dir := &DirGenerator{
-		dirList: AllDirList,
-	}
+	/*
+		dir := &DirGenerator{
+			dirList: AllDirList,
+		}
 
-	Register("dir generator", dir)
+		Register("dir generator", dir)
+	*/
 }

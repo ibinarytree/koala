@@ -9,7 +9,7 @@ import (
 type GrpcGenerator struct {
 }
 
-func (d *GrpcGenerator) Run(opt *Option) (err error) {
+func (d *GrpcGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) {
 
 	//protoc --go_out=plugins=grpc:. hello.proto
 	outputParams := fmt.Sprintf("plugins=grpc:%s/generate/", opt.Output)
@@ -26,7 +26,7 @@ func (d *GrpcGenerator) Run(opt *Option) (err error) {
 }
 
 func init() {
-	dir := &GrpcGenerator{}
+	gc := &GrpcGenerator{}
 
-	Register("grpc generator", dir)
+	Register("grpc generator", gc)
 }
