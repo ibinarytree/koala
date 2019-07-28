@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/emicklei/proto"
+	"github.com/ibinarytree/proto"
 )
 
 type Generator interface {
@@ -12,4 +12,6 @@ type ServiceMetaData struct {
 	Service  *proto.Service
 	Messages []*proto.Message
 	Rpc      []*proto.RPC
+	Package  *proto.Package
+	Prefix   string
 }

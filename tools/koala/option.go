@@ -5,4 +5,5 @@ type Option struct {
 	Output         string
 	GenClientCode  bool
 	GenServerCode  bool
+	Prefix         string
 }

@@ -1,5 +1,6 @@
 package main
 
+/*
 import (
 	"fmt"
 	"os"
@@ -34,7 +35,7 @@ func (d *DirGenerator) Run(opt *Option) (err error) {
 	}
 	return
 }
-
+*/
 func init() {
 	/*
 		dir := &DirGenerator{

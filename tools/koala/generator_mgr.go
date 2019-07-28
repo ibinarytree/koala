@@ -5,12 +5,25 @@ import (
 	"os"
 	"path"
 
-	"github.com/emicklei/proto"
+	"github.com/ibinarytree/proto"
 )
 
 var genMgr *GeneratorMgr = &GeneratorMgr{
 	genMap:   make(map[string]Generator),
 	metaData: &ServiceMetaData{},
+}
+
+var AllDirList []string = []string{
+	"controller",
+	"idl",
+	"main",
+	"scripts",
+	"conf",
+	"app/router",
+	"app/config",
+	"model",
+	"generate",
+	"router",
 }
 
 type GeneratorMgr struct {
@@ -38,7 +51,9 @@ func (g *GeneratorMgr) parseService(opt *Option) (err error) {
 	proto.Walk(definition,
 		proto.WithService(g.handleService),
 		proto.WithMessage(g.handleMessage),
-		proto.WithRPC(g.handleRPC))
+		proto.WithRPC(g.handleRPC),
+		proto.WithPackage(g.handlePackage),
+	)
 
 	return
 }
@@ -53,6 +68,10 @@ func (g *GeneratorMgr) handleMessage(m *proto.Message) {
 
 func (g *GeneratorMgr) handleRPC(r *proto.RPC) {
 	g.metaData.Rpc = append(g.metaData.Rpc, r)
+}
+
+func (g *GeneratorMgr) handlePackage(r *proto.Package) {
+	g.metaData.Package = r
 }
 
 func (g *GeneratorMgr) createAllDir(opt *Option) (err error) {
@@ -80,6 +99,7 @@ func (g *GeneratorMgr) Run(opt *Option) (err error) {
 		return
 	}
 
+	g.metaData.Prefix = opt.Prefix
 	for _, gen := range g.genMap {
 		err = gen.Run(opt, g.metaData)
 		if err != nil {

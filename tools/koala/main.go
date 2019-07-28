@@ -37,6 +37,12 @@ func main() {
 			Usage:       "generate grpc server code",
 			Destination: &opt.GenServerCode,
 		},
+		cli.StringFlag{
+			Name:        "p",
+			Value:       "",
+			Usage:       "prefix of package",
+			Destination: &opt.Prefix,
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
