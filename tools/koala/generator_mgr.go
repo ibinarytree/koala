@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
+	"runtime"
+	"strings"
 
 	"github.com/ibinarytree/proto"
 )
@@ -87,7 +90,50 @@ func (g *GeneratorMgr) createAllDir(opt *Option) (err error) {
 	return
 }
 
+func (g *GeneratorMgr) initOutputDir(opt *Option) (err error) {
+
+	goPath := os.Getenv("GOPATH")
+	if len(opt.Prefix) > 0 {
+		//假如用户指定Prefix=github.com/ibinarytree/koala/example
+		//outputDir=$GOPATH/$Prefix
+		opt.Output = path.Join(goPath, "src", opt.Prefix)
+		return
+	}
+
+	//如果用户梅有指定包的路径，那么使用当前路径作为包的路径以及output目录
+	//exeFilePath = "C:\\xxx\\a.exe"
+	exeFilePath, err := filepath.Abs(os.Args[0])
+	if err != nil {
+		return
+	}
+
+	if runtime.GOOS == "windows" {
+		exeFilePath = strings.Replace(exeFilePath, "\\", "/", -1)
+	}
+
+	lastIdx := strings.LastIndex(exeFilePath, "/")
+	if lastIdx < 0 {
+		err = fmt.Errorf("invalid exe path:%v", exeFilePath)
+		return
+	}
+	//C:/project/src/xxx/
+	opt.Output = strings.ToLower(exeFilePath[0:lastIdx])
+	srcPath := path.Join(goPath, "src/")
+	if srcPath[len(srcPath)-1] != '/' {
+		srcPath = fmt.Sprintf("%s/", srcPath)
+	}
+	opt.Prefix = strings.Replace(opt.Output, srcPath, "", -1)
+
+	fmt.Printf("opt output:%s, prefix:%s, gopath:%s\n", opt.Output, opt.Prefix, goPath)
+	return
+}
+
 func (g *GeneratorMgr) Run(opt *Option) (err error) {
+
+	err = g.initOutputDir(opt)
+	if err != nil {
+		return
+	}
 
 	err = g.parseService(opt)
 	if err != nil {

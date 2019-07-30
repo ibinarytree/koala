@@ -5,23 +5,29 @@ package router
 import(
 	"context"
 	{{if not .Prefix}}
-		"{{.Package.Name}}"
+		"generate/{{.Package.Name}}"
 	{{else}}
-		"{{.Prefix}}/{{.Package.Name}}"
+		"{{.Prefix}}/generate/{{.Package.Name}}"
 	{{end}}
+
+	{{if not .Prefix}}
+	"controller"
+{{else}}
+	"{{.Prefix}}/controller"
+{{end}}
 )
 	
 type RouterServer struct{}
 
 {{range .Rpc}}
-func (s *RouterServer) {{.Name}}(ctx context.Context, r*{{$.Package.Name}}.{{.RequestType}})(resp*{{$.Package.Name}}.{{.ReturnsType}}){
-	/*inst := &SayHelloController{}
-	err = inst.CheckParams(ctx, r)
+func (s *RouterServer) {{.Name}}(ctx context.Context, r*{{$.Package.Name}}.{{.RequestType}})(resp*{{$.Package.Name}}.{{.ReturnsType}}, err error){
+	ctrl := &controller.{{.Name}}Controller{}
+	err = ctrl.CheckParams(ctx, r)
 	if err != nil {
 		return
 	}
 
-	resp, err = inst.Run(ctx, r)*/
+	resp, err = ctrl.Run(ctx, r)
 	return
 }
 {{end}}

@@ -21,12 +21,6 @@ func main() {
 			Usage:       "idl filename",
 			Destination: &opt.Proto3Filename,
 		},
-		cli.StringFlag{
-			Name:        "o",
-			Value:       "./output/",
-			Usage:       "output directory",
-			Destination: &opt.Output,
-		},
 		cli.BoolFlag{
 			Name:        "c",
 			Usage:       "generate grpc client code",
