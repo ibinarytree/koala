@@ -4,6 +4,8 @@ var router_template = `
 package router
 import(
 	"context"
+
+	"github.com/ibinarytree/koala/middleware"
 	{{if not .Prefix}}
 		"generate/{{.Package.Name}}"
 	{{else}}
@@ -21,14 +23,25 @@ type RouterServer struct{}
 
 {{range .Rpc}}
 func (s *RouterServer) {{.Name}}(ctx context.Context, r*{{$.Package.Name}}.{{.RequestType}})(resp*{{$.Package.Name}}.{{.ReturnsType}}, err error){
-	ctrl := &controller.{{.Name}}Controller{}
-	err = ctrl.CheckParams(ctx, r)
-	if err != nil {
-		return
-	}
+	mwFunc := middleware.BuildServerMiddleware(mw{{.Name}})
+	mwResp, err := mwFunc(ctx, r)
 
-	resp, err = ctrl.Run(ctx, r)
+	resp = mwResp.(*{{$.Package.Name}}.{{.ReturnsType}})
 	return
+}
+
+
+func mw{{.Name}}(ctx context.Context, request interface{}) (resp interface{}, err error) {
+	
+		r := request.(*{{$.Package.Name}}.{{.RequestType}})
+		ctrl := &controller.{{.Name}}Controller{}
+		err = ctrl.CheckParams(ctx, r)
+		if err != nil {
+			return
+		}
+	
+		resp, err = ctrl.Run(ctx, r)
+		return
 }
 {{end}}
 `
