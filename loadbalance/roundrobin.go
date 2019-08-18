@@ -22,7 +22,7 @@ func (r *RoundRobinBalance) Select(ctx context.Context, nodes []*registry.Node) 
 	}
 
 	r.index = (r.index + 1) % len(nodes)
-	node = nodes[r.index]
+	node = nodes[r.i ndex]
 
 	return
 }

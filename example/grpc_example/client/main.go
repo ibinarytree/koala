@@ -5,6 +5,7 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
 	pb "github.com/ibinarytree/koala/example/grpc_example/hello"
 	"golang.org/x/net/context"
@@ -28,9 +29,13 @@ func main() {
 	if len(os.Args) > 1 {
 		name = os.Args[1]
 	}
-	r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
-	if err != nil {
-		log.Fatal("could not greet: %v", err)
+	for {
+		r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
+		if err != nil {
+			log.Fatal("could not greet: %v", err)
+		}
+		_ = r
+		//log.Printf("Greeting: %s", r.Reply)
+		time.Sleep(time.Millisecond * 10)
 	}
-	log.Printf("Greeting: %s", r.Reply)
 }

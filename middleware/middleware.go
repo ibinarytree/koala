@@ -29,6 +29,8 @@ func Use(m ...Middleware) {
 func BuildServerMiddleware(handle MiddlewareFunc) (handleChain MiddlewareFunc) {
 
 	var mids []Middleware
+
+	mids = append(mids, PrometheusServerMiddleware)
 	if len(userMiddleware) != 0 {
 		mids = append(mids, userMiddleware...)
 	}

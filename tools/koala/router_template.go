@@ -6,6 +6,7 @@ import(
 	"context"
 
 	"github.com/ibinarytree/koala/middleware"
+	"github.com/ibinarytree/koala/meta"
 	{{if not .Prefix}}
 		"generate/{{.Package.Name}}"
 	{{else}}
@@ -23,6 +24,8 @@ type RouterServer struct{}
 
 {{range .Rpc}}
 func (s *RouterServer) {{.Name}}(ctx context.Context, r*{{$.Package.Name}}.{{.RequestType}})(resp*{{$.Package.Name}}.{{.ReturnsType}}, err error){
+	
+	ctx = meta.InitServerMeta(ctx,"{{$.Package.Name}}", "{{.Name}}")
 	mwFunc := middleware.BuildServerMiddleware(mw{{.Name}})
 	mwResp, err := mwFunc(ctx, r)
 
