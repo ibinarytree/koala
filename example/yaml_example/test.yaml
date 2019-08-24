@@ -1,0 +1,15 @@
+site:
+  port: 8080
+  https_on: false
+  domain: "pythonsite.com"
+  https_port: 443
+nginx:
+  port: 80
+  log_path: "/opt/log/nginx.log"
+  path: "/opt/nginx/"
+  site_name: "this is my web site"
+  site_addr: "BeiJing"
+  upstream:
+    - 127.0.0.1:8080
+    - 127.0.0.2:8090
+    - 127.0.0.3:9090

@@ -34,8 +34,8 @@ func (d *CtrlGenerator) generateRpc(opt *Option, metaData *ServiceMetaData) (err
 
 	for _, rpc := range metaData.Rpc {
 		var file *os.File
-		filename := path.Join("./", opt.Output, "controller", fmt.Sprintf("%s.go", rpc.Name))
-
+		filename := path.Join(opt.Output, "controller", fmt.Sprintf("%s.go", rpc.Name))
+		fmt.Printf("filename is %s\n", filename)
 		file, err = os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
 		if err != nil {
 			fmt.Printf("open file:%s failed, err:%v\n", filename, err)

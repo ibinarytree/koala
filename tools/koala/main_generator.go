@@ -12,7 +12,7 @@ type MainGenerator struct {
 
 func (d *MainGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) {
 
-	filename := path.Join("./", opt.Output, "main/main.go")
+	filename := path.Join(opt.Output, "main/main.go")
 	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
 		fmt.Printf("open file:%s failed, err:%v\n", filename, err)
