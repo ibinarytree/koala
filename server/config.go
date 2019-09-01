@@ -28,6 +28,10 @@ var (
 			Level: "debug",
 			Dir:   "./logs/",
 		},
+		Limit: LimitConf{
+			SwitchOn: true,
+			QPSLimit: 50000,
+		},
 	}
 )
 
@@ -37,11 +41,17 @@ type KoalaConf struct {
 	ServiceName string         `yaml:"service_name"`
 	Regiser     RegisterConf   `yaml:"register"`
 	Log         LogConf        `yaml:"log"`
+	Limit       LimitConf      `yaml:"limit"`
 
 	//内部的配置项
 	ConfigDir  string `yaml:"-"`
 	RootDir    string `yaml:"-"`
 	ConfigFile string `yaml:"-"`
+}
+
+type LimitConf struct {
+	QPSLimit int  `yaml:"qps"`
+	SwitchOn bool `yaml:"switch_on"`
 }
 
 type PrometheusConf struct {

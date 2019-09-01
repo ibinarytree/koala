@@ -10,4 +10,7 @@ register:
 log:
   level: debug
   path: ./logs/
+limit:
+  switch_on: true
+  qps: 50000
 `

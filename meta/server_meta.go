@@ -1,6 +1,8 @@
 package meta
 
-import "context"
+import (
+	"context"
+)
 
 type ServerMeta struct {
 	ServiceName string
