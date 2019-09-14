@@ -3,57 +3,90 @@ package logs
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 )
 
-type FileLoggerOptions struct {
+type FileOutputerOptions struct {
 	filename      string
 	lastSplitHour int
 }
 
-type FileLogger struct {
-	file   *os.File
-	option *FileLoggerOptions
+type FileOutputer struct {
+	file       *os.File
+	accessFile *os.File
+	option     *FileOutputerOptions
 }
 
-func NewFileLogger(filename string) (LogInterface, error) {
+func NewFileOutputer(filename string) (Outputer, error) {
 
-	option := &FileLoggerOptions{
+	filename, err := filepath.Abs(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	option := &FileOutputerOptions{
 		filename: filename,
 	}
 
-	log := &FileLogger{
+	log := &FileOutputer{
 		option: option,
 	}
 
-	err := log.init()
+	err = log.init()
 	return log, err
 }
 
-func (f *FileLogger) getFilename() (filename string) {
+func (f *FileOutputer) getCurFilename() (curFilename, originFilename string) {
 
 	now := time.Now()
-	filename = fmt.Sprintf("%s.%04d%02d%02d%02d", f.option.filename,
+	curFilename = fmt.Sprintf("%s.%04d%02d%02d%02d", f.option.filename,
 		now.Year(), now.Month(), now.Day(), now.Hour())
+	originFilename = f.option.filename
 	return
 }
 
-func (f *FileLogger) init() (err error) {
+func (f *FileOutputer) getCurAccessFilename() (curAccessFilename, originAccessFilename string) {
 
-	filename := f.getFilename()
-	file, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
+	now := time.Now()
+	curAccessFilename = fmt.Sprintf("%s.access.%04d%02d%02d%02d", f.option.filename,
+		now.Year(), now.Month(), now.Day(), now.Hour())
+
+	originAccessFilename = fmt.Sprintf("%s.acccess", f.option.filename)
+	return
+}
+
+func (f *FileOutputer) initFile(filename, originFilename string) (file *os.File, err error) {
+
+	file, err = os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
 	if err != nil {
-		return fmt.Errorf("open faile %s failed, err:%v", filename, err)
+		err = fmt.Errorf("open faile %s failed, err:%v", filename, err)
+		return
 	}
 
-	f.file = file
-	os.Symlink(filename, f.option.filename)
-	f.option.lastSplitHour = time.Now().Hour()
-
+	os.Symlink(filename, originFilename)
 	return
 }
 
-func (f *FileLogger) checkSplitFile(curTime time.Time) {
+func (f *FileOutputer) init() (err error) {
+
+	curFilename, originFilename := f.getCurFilename()
+	f.file, err = f.initFile(curFilename, originFilename)
+	if err != nil {
+		return
+	}
+
+	accessFilename, originAccessFilename := f.getCurAccessFilename()
+	f.accessFile, err = f.initFile(accessFilename, originAccessFilename)
+	if err != nil {
+		return
+	}
+
+	f.option.lastSplitHour = time.Now().Hour()
+	return
+}
+
+func (f *FileOutputer) checkSplitFile(curTime time.Time) {
 
 	hour := curTime.Hour()
 	if hour == f.option.lastSplitHour {
@@ -63,11 +96,18 @@ func (f *FileLogger) checkSplitFile(curTime time.Time) {
 	f.init()
 }
 
-func (f *FileLogger) Write(data *LogData) {
+func (f *FileOutputer) Write(data *LogData) {
 	f.checkSplitFile(data.curTime)
-	f.file.Write(data.Bytes())
+
+	file := f.file
+	if data.level == LogLevelAccess {
+		file = f.accessFile
+	}
+
+	file.Write(data.Bytes())
 }
 
-func (f *FileLogger) Close() {
+func (f *FileOutputer) Close() {
 	f.file.Close()
+	f.accessFile.Close()
 }

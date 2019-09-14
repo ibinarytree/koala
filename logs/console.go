@@ -4,33 +4,22 @@ import (
 	"os"
 )
 
-type ConsoleLogger struct {
-	level LogLevel
+type ConsoleOutputer struct {
 }
 
-func NewConsoleLogger(logLevel string) (log LogInterface) {
-	level := getLogLevel(logLevel)
-	log = &ConsoleLogger{
-		level: level,
-	}
+func NewConsoleOutputer() (log Outputer) {
+
+	log = &ConsoleOutputer{}
 	return
 }
 
-func (c *ConsoleLogger) SetLevel(level LogLevel) {
-	if level < LogLevelDebug || level > LogLevelError {
-		level = LogLevelDebug
-	}
-
-	c.level = level
-}
-
-func (c *ConsoleLogger) Write(data *LogData) {
+func (c *ConsoleOutputer) Write(data *LogData) {
 
 	color := getLevelColor(data.level)
 	text := color.Add(string(data.Bytes()))
 	os.Stdout.Write([]byte(text))
 }
 
-func (c *ConsoleLogger) Close() {
+func (c *ConsoleOutputer) Close() {
 
 }

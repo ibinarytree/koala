@@ -7,10 +7,24 @@ import (
 
 var (
 	initFields sync.Once
+	
 )
 
+
+type KeyVal struct {
+	key interface{}
+	val interface{}
+}
+
 type LogField struct {
-	fields sync.Map
+	kvs []KeyVal
+	fieldLock sync.Mutex
+}
+
+func (l*LogField) AddField(key , val interface{}) {
+	l.fieldLock.Lock()
+	l.kvs = append(l.kvs, KeyVal{key:key, val:val})
+	l.fieldLock.Unlock()
 }
 
 type kvsIdKey struct{}
@@ -27,8 +41,7 @@ func AddField(ctx context.Context, key string, val interface{}) {
 	if field == nil {
 		return
 	}
-
-	field.fields.Store(key, val)
+	field.AddField(key, val)
 }
 
 func getFields(ctx context.Context) *LogField {

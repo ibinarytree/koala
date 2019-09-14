@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/ibinarytree/koala/logs"
 	"github.com/ibinarytree/koala/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/time/rate"
@@ -38,6 +39,21 @@ func Init(serviceName string) (err error) {
 		koalaServer.limiter = rate.NewLimiter(rate.Limit(koalaConf.Limit.QPSLimit),
 			koalaConf.Limit.QPSLimit)
 	}
+
+	initLogger()
+	return
+}
+
+func initLogger() (err error) {
+	filename := fmt.Sprintf("%s/%s.log", koalaConf.Log.Dir, koalaConf.ServiceName)
+	outputer, err := logs.NewFileOutputer(filename)
+	if err != nil {
+		return
+	}
+
+	level := logs.GetLogLevel(koalaConf.Log.Level)
+	logs.InitLogger(level, koalaConf.Log.ChanSize, koalaConf.ServiceName)
+	logs.AddOutputer(outputer)
 	return
 }
 
@@ -72,6 +88,7 @@ func BuildServerMiddleware(handle middleware.MiddlewareFunc) middleware.Middlewa
 		mids = append(mids, middleware.NewRateLimitMiddleware(koalaServer.limiter))
 	}
 
+	mids = append(mids, middleware.AccessLogMiddleware)
 	if len(koalaServer.userMiddleware) != 0 {
 		mids = append(mids, koalaServer.userMiddleware...)
 	}

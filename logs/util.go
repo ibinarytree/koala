@@ -16,7 +16,7 @@ type LogData struct {
 	lineNo      int
 	traceId     string
 	serviceName string
-	fields      map[interface{}]interface{}
+	fields      *LogField
 }
 
 func writeField(buffer *bytes.Buffer, field, sep string) {
@@ -43,8 +43,10 @@ func (l *LogData) Bytes() []byte {
 	writeField(&buffer, fmt.Sprintf("%d", l.lineNo), SpaceSep)
 	writeField(&buffer, l.traceId, SpaceSep)
 
-	for key, val := range l.fields {
-		writeField(&buffer, fmt.Sprintf("%v=%v", key, val), SpaceSep)
+	if l.level == LogLevelAccess && l.fields != nil {
+		for _, field := range l.fields.kvs {
+			writeField(&buffer, fmt.Sprintf("%v=%v", field.key, field.val), SpaceSep)
+		}
 	}
 
 	writeField(&buffer, l.message, LineSep)

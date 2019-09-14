@@ -11,15 +11,15 @@ import (
 //GetLineInfo:10
 //runtime.Caller(3)
 func TestFileLogger(t *testing.T) {
-	logger, err := NewFileLogger("c:/logs/test.log")
+	outputer, err := NewFileOutputer("c:/logs/test.log")
 	if err != nil {
-		t.Errorf("init file logger failed, err:%v", err)
+		t.Errorf("init file outputer failed, err:%v", err)
 		return
 	}
 
-	InitLogger(LogLevelAccess, 10000, "account")
-
-	AddLogger(logger)
+	InitLogger(LogLevelDebug, 10000, "account")
+	AddOutputer(outputer)
+	
 	Debug(context.Background(), "this is a good test")
 	Trace(context.Background(), "this is a good test")
 	Info(context.Background(), "this is a good test")
@@ -42,11 +42,13 @@ func TestConsoleLogger(t *testing.T) {
 	AddField(ctx, "user_id", 83332232)
 	AddField(ctx, "name", "kswss")
 
+	
+
+	Access(ctx, "this is a good test")
+
 	Debug(ctx, "this is a good test")
 	Trace(ctx, "this is a good test")
 	Info(ctx, "this is a good test")
-
-	Access(ctx, "this is a good test")
 	Warn(ctx, "this is a good test")
 	Error(ctx, "this is a good test")
 	Stop()

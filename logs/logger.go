@@ -9,14 +9,14 @@ import (
 )
 
 var (
-	defaultLogger      = NewConsoleLogger("debug")
+	defaultOutputer    = NewConsoleOutputer()
 	lm                 *LoggerMgr
 	initOnce           *sync.Once = &sync.Once{}
 	defaultServiceName            = "default"
 )
 
 type LoggerMgr struct {
-	loggers     []LogInterface
+	outputers   []Outputer
 	chanSize    int
 	level       LogLevel
 	logDataChan chan *LogData
@@ -38,6 +38,9 @@ func initLogger(level LogLevel, chanSize int, serviceName string) {
 }
 
 func InitLogger(level LogLevel, chanSize int, serviceName string) {
+	if chanSize <= 0 {
+		chanSize = DefaultLogChanSize
+	}
 	initLogger(level, chanSize, serviceName)
 }
 
@@ -47,25 +50,25 @@ func SetLevel(level LogLevel) {
 
 func (l *LoggerMgr) run() {
 	for data := range l.logDataChan {
-		if len(l.loggers) == 0 {
-			defaultLogger.Write(data)
+		if len(l.outputers) == 0 {
+			defaultOutputer.Write(data)
 			continue
 		}
 
-		for _, logger := range l.loggers {
-			logger.Write(data)
+		for _, outputer := range l.outputers {
+			outputer.Write(data)
 		}
 	}
 
 	l.wg.Done()
 }
 
-func AddLogger(logger LogInterface) {
+func AddOutputer(ouputer Outputer) {
 	if lm == nil {
 		initLogger(LogLevelDebug, DefaultLogChanSize, defaultServiceName)
 	}
 
-	lm.loggers = append(lm.loggers, logger)
+	lm.outputers = append(lm.outputers, ouputer)
 	return
 }
 
@@ -97,8 +100,8 @@ func Stop() {
 	close(lm.logDataChan)
 	lm.wg.Wait()
 
-	for _, logger := range lm.loggers {
-		logger.Close()
+	for _, outputer := range lm.outputers {
+		outputer.Close()
 	}
 
 	//重新初始化
@@ -134,11 +137,7 @@ func writeLog(ctx context.Context, level LogLevel, format string, args ...interf
 	if level == LogLevelAccess {
 		fields := getFields(ctx)
 		if fields != nil {
-			logData.fields = make(map[interface{}]interface{})
-			fields.fields.Range(func(k, v interface{}) bool {
-				logData.fields[k] = v
-				return true
-			})
+			logData.fields = fields
 		}
 	}
 

@@ -10,6 +10,7 @@ register:
 log:
   level: debug
   path: ./logs/
+  chan_size: 10000
 limit:
   switch_on: true
   qps: 50000

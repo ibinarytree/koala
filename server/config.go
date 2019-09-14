@@ -25,8 +25,9 @@ var (
 			SwitchOn: false,
 		},
 		Log: LogConf{
-			Level: "debug",
-			Dir:   "./logs/",
+			Level:    "debug",
+			Dir:      "./logs/",
+			ChanSize: 10000,
 		},
 		Limit: LimitConf{
 			SwitchOn: true,
@@ -64,8 +65,9 @@ type RegisterConf struct {
 }
 
 type LogConf struct {
-	Level string `yaml:"level"`
-	Dir   string `yaml:"path"`
+	Level    string `yaml:"level"`
+	Dir      string `yaml:"path"`
+	ChanSize int    `yaml:"chan_size"`
 }
 
 func initDir(serviceName string) (err error) {
