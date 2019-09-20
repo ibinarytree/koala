@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -8,6 +9,9 @@ import (
 
 	"github.com/ibinarytree/koala/logs"
 	"github.com/ibinarytree/koala/middleware"
+	"github.com/ibinarytree/koala/registry"
+	_ "github.com/ibinarytree/koala/registry/etcd"
+	"github.com/ibinarytree/koala/util"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/time/rate"
 	"google.golang.org/grpc"
@@ -15,8 +19,8 @@ import (
 
 type KoalaServer struct {
 	*grpc.Server
-	limiter *rate.Limiter
-
+	limiter        *rate.Limiter
+	register       registry.Registry
 	userMiddleware []middleware.Middleware
 }
 
@@ -41,6 +45,14 @@ func Init(serviceName string) (err error) {
 	}
 
 	initLogger()
+
+	//初始化注册中心
+	err = initRegister(serviceName)
+	if err != nil {
+		logs.Error(context.TODO(), "init register failed, err:%v", err)
+		return
+	}
+
 	return
 }
 
@@ -54,6 +66,48 @@ func initLogger() (err error) {
 	level := logs.GetLogLevel(koalaConf.Log.Level)
 	logs.InitLogger(level, koalaConf.Log.ChanSize, koalaConf.ServiceName)
 	logs.AddOutputer(outputer)
+
+	if koalaConf.Log.ConsoleLog {
+		logs.AddOutputer(logs.NewConsoleOutputer())
+	}
+	return
+}
+
+func initRegister(serviceName string) (err error) {
+
+	if !koalaConf.Regiser.SwitchOn {
+		return
+	}
+
+	ctx := context.TODO()
+	registryInst, err := registry.InitRegistry(ctx,
+		koalaConf.Regiser.RegisterName,
+		registry.WithAddrs([]string{koalaConf.Regiser.RegisterAddr}),
+		registry.WithTimeout(koalaConf.Regiser.Timeout),
+		registry.WithRegistryPath(koalaConf.Regiser.RegisterPath),
+		registry.WithHeartBeat(koalaConf.Regiser.HeartBeat),
+	)
+	if err != nil {
+		logs.Error(ctx, "init registry failed, err:%v", err)
+		return
+	}
+
+	koalaServer.register = registryInst
+	service := &registry.Service{
+		Name: serviceName,
+	}
+
+	ip, err := util.GetLocalIP()
+	if err != nil {
+		return
+	}
+	service.Nodes = append(service.Nodes, &registry.Node{
+		IP:   ip,
+		Port: koalaConf.Port,
+	},
+	)
+
+	registryInst.Register(context.TODO(), service)
 	return
 }
 

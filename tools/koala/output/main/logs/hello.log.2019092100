@@ -1,0 +1,3 @@
+2019-09-21 00:30:03.355 ERROR hello server.go:91 - init registry failed, err:init etcd failed, err:context deadline exceeded
+2019-09-21 00:30:03.355 ERROR hello server.go:52 - init register failed, err:init etcd failed, err:context deadline exceeded
+2019-09-21 00:30:03.355 ERROR hello main.go:20 - init service failed, err:init etcd failed, err:context deadline exceeded

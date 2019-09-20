@@ -1,0 +1,3 @@
+2019-09-14 21:56:05.538 ERROR hello server.go:81 - init registry failed, err:plugin etcd not exists
+2019-09-14 21:58:06.465 ERROR hello server.go:82 - init registry failed, err:plugin etcd not exists
+2019-09-14 21:58:06.466 ERROR hello server.go:51 - init register failed, err:plugin etcd not exists

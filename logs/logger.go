@@ -41,6 +41,7 @@ func InitLogger(level LogLevel, chanSize int, serviceName string) {
 	if chanSize <= 0 {
 		chanSize = DefaultLogChanSize
 	}
+
 	initLogger(level, chanSize, serviceName)
 }
 
@@ -49,6 +50,7 @@ func SetLevel(level LogLevel) {
 }
 
 func (l *LoggerMgr) run() {
+
 	for data := range l.logDataChan {
 		if len(l.outputers) == 0 {
 			defaultOutputer.Write(data)

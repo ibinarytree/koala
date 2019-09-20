@@ -13,19 +13,6 @@ import (
 	"github.com/ibinarytree/koala/registry"
 )
 
-/*
-// 服务注册插件的接口
-type Registry interface {
-	//插件的名字
-	Name() string
-	//初始化
-	Init(ctx context.Context, opts ...Option) (err error)
-	//服务注册
-	Register(ctx context.Context, service *Service) (err error)
-	//服务反注册
-	Unregister(ctx context.Context, service *Service) (err error)
-}
-*/
 const (
 	MaxServiceNum          = 8
 	MaxSyncServiceInterval = time.Second * 10
@@ -90,6 +77,7 @@ func (e *EtcdRegistry) Init(ctx context.Context, opts ...registry.Option) (err e
 	})
 
 	if err != nil {
+		err = fmt.Errorf("init etcd failed, err:%v", err)
 		return
 	}
 
@@ -160,8 +148,6 @@ func (e *EtcdRegistry) keepAlive(registryService *RegisterService) {
 			registryService.registered = false
 			return
 		}
-		fmt.Printf("service:%s node:%s ttl:%v\n", registryService.service.Name,
-			registryService.service.Nodes[0].IP, registryService.service.Nodes[0].Port)
 	}
 	return
 }
@@ -189,7 +175,7 @@ func (e *EtcdRegistry) registerService(registryService *RegisterService) (err er
 		}
 
 		key := e.serviceNodePath(tmp)
-		fmt.Printf("register key:%v\n", key)
+		fmt.Printf("register key:%s\n", key)
 		_, err = e.client.Put(context.TODO(), key, string(data), clientv3.WithLease(resp.ID))
 		if err != nil {
 			continue
@@ -306,8 +292,6 @@ func (e *EtcdRegistry) syncServiceFromEtcd() {
 		}
 
 		for _, kv := range resp.Kvs {
-			fmt.Printf("key:%s value:%s", string(kv.Key), string(kv.Value))
-
 			value := kv.Value
 			var tmpService registry.Service
 			err = json.Unmarshal(value, &tmpService)
@@ -324,5 +308,4 @@ func (e *EtcdRegistry) syncServiceFromEtcd() {
 	}
 
 	e.value.Store(allServiceInfoNew)
-	fmt.Printf("background update all service succ, len:%d\n\n", len(allServiceInfoNew.serviceMap))
 }

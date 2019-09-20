@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/ibinarytree/koala/util"
 	"gopkg.in/yaml.v2"
@@ -22,12 +23,18 @@ var (
 		},
 		ServiceName: "koala_server",
 		Regiser: RegisterConf{
-			SwitchOn: false,
+			SwitchOn:     false,
+			RegisterPath: "/ibinarytree/koala/service/",
+			Timeout:      time.Second,
+			HeartBeat:    10,
+			RegisterName: "etcd",
+			RegisterAddr: "127.0.0.1:2379",
 		},
 		Log: LogConf{
-			Level:    "debug",
-			Dir:      "./logs/",
-			ChanSize: 10000,
+			Level:      "debug",
+			Dir:        "./logs/",
+			ChanSize:   10000,
+			ConsoleLog: true,
 		},
 		Limit: LimitConf{
 			SwitchOn: true,
@@ -61,13 +68,19 @@ type PrometheusConf struct {
 }
 
 type RegisterConf struct {
-	SwitchOn bool `yaml:"switch_on"`
+	SwitchOn     bool          `yaml:"switch_on"`
+	RegisterPath string        `yaml:"register_path"`
+	Timeout      time.Duration `yaml:"timeout"`
+	HeartBeat    int64         `yaml:"heart_beat"`
+	RegisterName string        `yaml:"register_name"`
+	RegisterAddr string        `yaml:"register_addr"`
 }
 
 type LogConf struct {
-	Level    string `yaml:"level"`
-	Dir      string `yaml:"path"`
-	ChanSize int    `yaml:"chan_size"`
+	Level      string `yaml:"level"`
+	Dir        string `yaml:"path"`
+	ChanSize   int    `yaml:"chan_size"`
+	ConsoleLog bool   `yaml:"console_log"`
 }
 
 func initDir(serviceName string) (err error) {
