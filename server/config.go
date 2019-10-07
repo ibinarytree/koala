@@ -50,11 +50,19 @@ type KoalaConf struct {
 	Regiser     RegisterConf   `yaml:"register"`
 	Log         LogConf        `yaml:"log"`
 	Limit       LimitConf      `yaml:"limit"`
+	Trace       TraceConf      `yaml:"trace"`
 
 	//内部的配置项
 	ConfigDir  string `yaml:"-"`
 	RootDir    string `yaml:"-"`
 	ConfigFile string `yaml:"-"`
+}
+
+type TraceConf struct {
+	SwitchOn   bool    `yaml:"switch_on"`
+	ReportAddr string  `yaml:"report_addr"`
+	SampleType string  `yaml:"sample_type"`
+	SampleRate float64 `yaml:"sample_rate"`
 }
 
 type LimitConf struct {

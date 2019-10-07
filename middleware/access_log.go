@@ -12,10 +12,6 @@ import (
 func AccessLogMiddleware(next MiddlewareFunc) MiddlewareFunc {
 	return func(ctx context.Context, req interface{}) (resp interface{}, err error) {
 
-		ctx = logs.WithFieldContext(ctx)
-		//TODO 使用调用方传递过来的trace_id
-		ctx = logs.WithTraceId(ctx, logs.GenTraceId())
-
 		startTime := time.Now()
 		resp, err = next(ctx, req)
 

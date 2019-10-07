@@ -15,6 +15,11 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/time/rate"
 	"google.golang.org/grpc"
+
+	opentracing "github.com/opentracing/opentracing-go"
+	jaeger "github.com/uber/jaeger-client-go"
+	config "github.com/uber/jaeger-client-go/config"
+	"github.com/uber/jaeger-client-go/transport/zipkin"
 )
 
 type KoalaServer struct {
@@ -53,6 +58,50 @@ func Init(serviceName string) (err error) {
 		return
 	}
 
+	err = initTrace(serviceName)
+	if err != nil {
+		logs.Error(context.TODO(), "init tracing failed, err:%v", err)
+	}
+	return
+}
+
+func initTrace(serviceName string) (err error) {
+
+	if !koalaConf.Trace.SwitchOn {
+		return
+	}
+
+	transport, err := zipkin.NewHTTPTransport(
+		koalaConf.Trace.ReportAddr,
+		zipkin.HTTPBatchSize(16),
+		zipkin.HTTPLogger(jaeger.StdLogger),
+	)
+	if err != nil {
+		logs.Error(context.TODO(), "ERROR: cannot init zipkin: %v\n", err)
+		return
+	}
+
+	cfg := &config.Configuration{
+		Sampler: &config.SamplerConfig{
+			Type:  koalaConf.Trace.SampleType,
+			Param: koalaConf.Trace.SampleRate,
+		},
+		Reporter: &config.ReporterConfig{
+			LogSpans: true,
+		},
+	}
+
+	r := jaeger.NewRemoteReporter(transport)
+	tracer, closer, err := cfg.New(serviceName,
+		config.Logger(jaeger.StdLogger),
+		config.Reporter(r))
+	if err != nil {
+		logs.Error(context.TODO(), "ERROR: cannot init Jaeger: %v\n", err)
+		return
+	}
+
+	_ = closer
+	opentracing.SetGlobalTracer(tracer)
 	return
 }
 
@@ -134,6 +183,8 @@ func GRPCServer() *grpc.Server {
 
 func BuildServerMiddleware(handle middleware.MiddlewareFunc) middleware.MiddlewareFunc {
 	var mids []middleware.Middleware
+
+	mids = append(mids, middleware.AccessLogMiddleware)
 	if koalaConf.Prometheus.SwitchOn {
 		mids = append(mids, middleware.PrometheusServerMiddleware)
 	}
@@ -142,17 +193,14 @@ func BuildServerMiddleware(handle middleware.MiddlewareFunc) middleware.Middlewa
 		mids = append(mids, middleware.NewRateLimitMiddleware(koalaServer.limiter))
 	}
 
-	mids = append(mids, middleware.AccessLogMiddleware)
+	if koalaConf.Trace.SwitchOn {
+		mids = append(mids, middleware.TraceServerMiddleware)
+	}
+
 	if len(koalaServer.userMiddleware) != 0 {
 		mids = append(mids, koalaServer.userMiddleware...)
 	}
 
-	if len(mids) > 0 {
-		//把所有中间件组织成一个调用链
-		m := middleware.Chain(mids[0], mids[1:]...)
-		//返回调用链的入口函数
-		return m(handle)
-	}
-
-	return handle
+	m := middleware.Chain(middleware.PrepareMiddleware, mids...)
+	return m(handle)
 }

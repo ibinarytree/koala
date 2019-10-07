@@ -2,11 +2,10 @@ package controller
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/ibinarytree/koala/logs"
-
 	"github.com/ibinarytree/koala/tools/koala/output/generate/hello"
+	"google.golang.org/grpc/metadata"
 )
 
 type SayHelloController struct {
@@ -24,8 +23,11 @@ func (s *SayHelloController) Run(ctx context.Context, r *hello.HelloRequest) (
 	resp = &hello.HelloResponse{
 		Reply: "hello",
 	}
-	err = fmt.Errorf(
-		"Length of `Name` cannot be more than 10 characters")
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		logs.AddField(ctx, "client_md", md)
+	}
 
 	logs.Debug(ctx, "req=%#v", r)
 	logs.AddField(ctx, "use_id", 3838838383)

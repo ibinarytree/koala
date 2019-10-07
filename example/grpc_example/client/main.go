@@ -9,6 +9,7 @@ import (
 	pb "github.com/ibinarytree/koala/example/grpc_example/hello"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 const (
@@ -29,7 +30,9 @@ func main() {
 		name = os.Args[1]
 	}
 	for {
-		r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
+		ctx := context.Background()
+		ctx = metadata.AppendToOutgoingContext(ctx, "koala_trace_id", "888888888888888888888888888")
+		r, err := c.SayHello(ctx, &pb.HelloRequest{Name: name})
 		if err != nil {
 			log.Printf("could not greet: %v", err)
 			continue
