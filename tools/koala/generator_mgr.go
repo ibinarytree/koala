@@ -12,8 +12,9 @@ import (
 )
 
 var genMgr *GeneratorMgr = &GeneratorMgr{
-	genMap:   make(map[string]Generator),
-	metaData: &ServiceMetaData{},
+	genClientMap: make(map[string]Generator),
+	genServerMap: make(map[string]Generator),
+	metaData:     &ServiceMetaData{},
 }
 
 var AllDirList []string = []string{
@@ -31,8 +32,9 @@ var AllDirList []string = []string{
 }
 
 type GeneratorMgr struct {
-	genMap   map[string]Generator
-	metaData *ServiceMetaData
+	genClientMap map[string]Generator
+	genServerMap map[string]Generator
+	metaData     *ServiceMetaData
 }
 
 func (g *GeneratorMgr) parseService(opt *Option) (err error) {
@@ -141,28 +143,53 @@ func (g *GeneratorMgr) Run(opt *Option) (err error) {
 		return
 	}
 
-	err = g.createAllDir(opt)
-	if err != nil {
+	g.metaData.Prefix = opt.Prefix
+	if opt.GenClientCode {
+		for _, gen := range g.genClientMap {
+			err = gen.Run(opt, g.metaData)
+			if err != nil {
+				return
+			}
+		}
 		return
 	}
 
-	g.metaData.Prefix = opt.Prefix
-	for _, gen := range g.genMap {
-		err = gen.Run(opt, g.metaData)
+	if opt.GenServerCode {
+		err = g.createAllDir(opt)
 		if err != nil {
 			return
 		}
+
+		for _, gen := range g.genServerMap {
+			err = gen.Run(opt, g.metaData)
+			if err != nil {
+				return
+			}
+		}
+		return
 	}
+
 	return
 }
 
-func Register(name string, gen Generator) (err error) {
-	_, ok := genMgr.genMap[name]
+func RegisterClientGenerator(name string, gen Generator) (err error) {
+	_, ok := genMgr.genClientMap[name]
 	if ok {
 		err = fmt.Errorf("generator %s is exists", name)
 		return
 	}
 
-	genMgr.genMap[name] = gen
+	genMgr.genClientMap[name] = gen
+	return
+}
+
+func RegisterServerGenerator(name string, gen Generator) (err error) {
+	_, ok := genMgr.genServerMap[name]
+	if ok {
+		err = fmt.Errorf("generator %s is exists", name)
+		return
+	}
+
+	genMgr.genServerMap[name] = gen
 	return
 }

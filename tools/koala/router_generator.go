@@ -41,31 +41,5 @@ func (d *RouterGenerator) render(file *os.File, data string, metaData *ServiceMe
 
 func init() {
 	gen := &RouterGenerator{}
-	Register("RouterGenerator", gen)
+	RegisterServerGenerator("RouterGenerator", gen)
 }
-
-/*
-import(
-"context"
-hello "github.com/ibinarytree/koala/tools/koala/output/generate"
-)
-
-type RouterServer struct{}
-
-func (s *RouterServer) SayHello(ctx context.Context, r*hello.HelloRequest)(resp*hello.HelloResponse, err error){
-	inst := &SayHelloController{}
-	err = inst.CheckParams(ctx, r)
-	if err != nil {
-		return
-	}
-
-	resp, err = inst.Run(ctx, r)
-	return
-}
-
-
-func (s *RouterServer) Add(ctx context.Context, r*hello.AddRequest)(resp*hello.AddResponse, err error){
-	return
-	}
-
-*/

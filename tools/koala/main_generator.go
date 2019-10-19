@@ -35,7 +35,7 @@ func (d *MainGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) 
 }
 
 func (d *MainGenerator) render(file *os.File, data string, metaData *ServiceMetaData) (err error) {
-	t := template.New("main")
+	t := template.New("main").Funcs(templateFuncMap)
 	t, err = t.Parse(data)
 	if err != nil {
 		return
@@ -47,5 +47,5 @@ func (d *MainGenerator) render(file *os.File, data string, metaData *ServiceMeta
 
 func init() {
 	dir := &MainGenerator{}
-	Register("main generator", dir)
+	RegisterServerGenerator("main generator", dir)
 }

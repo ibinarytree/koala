@@ -75,5 +75,5 @@ func (d *CtrlGenerator) render(file *os.File, data string, metaData *RpcMeta) (e
 
 func init() {
 	ctrl := &CtrlGenerator{}
-	Register("ctrl generator", ctrl)
+	RegisterServerGenerator("ctrl generator", ctrl)
 }

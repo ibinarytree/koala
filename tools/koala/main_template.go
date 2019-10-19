@@ -28,7 +28,7 @@ func main() {
 		return
 	}
 
-	hello.RegisterHelloServiceServer(server.GRPCServer(), routerServer)
+	{{.Package.Name}}.Register{{Capitalize .Package.Name}}ServiceServer(server.GRPCServer(), routerServer)
 	server.Run()
 }
 `

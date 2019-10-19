@@ -32,5 +32,6 @@ func (d *GrpcGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) 
 func init() {
 	gc := &GrpcGenerator{}
 
-	Register("grpc generator", gc)
+	RegisterServerGenerator("grpc generator", gc)
+	RegisterClientGenerator("grpc generator", gc)
 }

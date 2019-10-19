@@ -63,5 +63,5 @@ func (d *ConfigGenerator) render(file *os.File, data string, metaData *ServiceMe
 
 func init() {
 	conf := &ConfigGenerator{}
-	Register("conf generator", conf)
+	RegisterServerGenerator("conf generator", conf)
 }
