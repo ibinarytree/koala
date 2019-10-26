@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"github.com/ibinarytree/koala/meta"
-	"github.com/ibinarytree/koala/middleware"
-	"github.com/ibinarytree/koala/registry"
 	_ "github.com/ibinarytree/koala/registry/etcd"
 )
 

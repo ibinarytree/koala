@@ -2,7 +2,6 @@ package rpc
 
 import (
 	"context"
-	"time"
 
 	"github.com/ibinarytree/koala/meta"
 	"github.com/ibinarytree/koala/middleware"
@@ -37,7 +36,7 @@ func (k *KoalaClient) getCaller(ctx context.Context) string {
 	return serverMeta.ServiceName
 }
 
-func (k *KoalaClient) buildMiddleware(handle middlewareFunc) MiddlewareFunc {
+func (k *KoalaClient) buildMiddleware(handle middleware.MiddlewareFunc) middleware.MiddlewareFunc {
 
 	var mids []middleware.Middleware
 	if len(mids) == 0 {
@@ -55,7 +54,7 @@ func (k *KoalaClient) Call(ctx context.Context, method string, r interface{}, ha
 	caller := k.getCaller(ctx)
 	ctx = meta.InitRpcMeta(ctx, k.opts.ServiceName, method, caller)
 	middlewareFunc := k.buildMiddleware(handle)
-	mkResp, err := middlewareFunc(ctx, r)
+	resp, err = middlewareFunc(ctx, r)
 	if err != nil {
 		return nil, err
 	}
