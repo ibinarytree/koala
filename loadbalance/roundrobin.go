@@ -7,11 +7,19 @@ import (
 )
 
 type RoundRobinBalance struct {
+	name string
 	index int
 }
 
+func NewRoundRobinBalance() LoadBalance{
+	return &RoundRobinBalance{
+		name:"roundrobin",
+	}
+}
+
+
 func (r *RoundRobinBalance) Name() string {
-	return "roundrobin"
+	return r.name
 }
 
 func (r *RoundRobinBalance) Select(ctx context.Context, nodes []*registry.Node) (node *registry.Node, err error) {
@@ -22,7 +30,7 @@ func (r *RoundRobinBalance) Select(ctx context.Context, nodes []*registry.Node) 
 	}
 
 	r.index = (r.index + 1) % len(nodes)
-	node = nodes[r.i ndex]
+	node = nodes[r.index]
 
 	return
 }

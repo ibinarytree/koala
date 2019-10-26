@@ -8,10 +8,17 @@ import (
 )
 
 type RandomBalance struct {
+	name string
+}
+
+func NewRandomBalance() LoadBalance{
+	return &RandomBalance{
+		name:"random",
+	}
 }
 
 func (r *RandomBalance) Name() string {
-	return "random"
+	return r.name
 }
 
 func (r *RandomBalance) Select(ctx context.Context, nodes []*registry.Node) (node *registry.Node, err error) {
