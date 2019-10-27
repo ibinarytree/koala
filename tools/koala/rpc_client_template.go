@@ -48,8 +48,6 @@ func (s *{{Capitalize $.Package.Name}}Client) {{.Name}}(ctx context.Context, r*{
 		return nil, err
 	}
 	
-
-
 	return resp, err
 }
 

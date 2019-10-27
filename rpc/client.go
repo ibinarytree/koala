@@ -2,22 +2,23 @@ package rpc
 
 import (
 	"context"
-	"time"
 	"sync"
+	"time"
 
-	"github.com/ibinarytree/koala/meta"
-	"github.com/ibinarytree/koala/logs"
-	"github.com/ibinarytree/koala/middleware"
 	"github.com/ibinarytree/koala/loadbalance"
+	"github.com/ibinarytree/koala/logs"
+	"github.com/ibinarytree/koala/meta"
+	"github.com/ibinarytree/koala/middleware"
 	"github.com/ibinarytree/koala/registry"
 )
 
 var initRegistryOnce sync.Once
+var globalRegister registry.Registry
 
 type KoalaClient struct {
 	opts     *RpcOptions
 	register registry.Registry
-	balance loadbalance.LoadBalance
+	balance  loadbalance.LoadBalance
 }
 
 func NewKoalaClient(serviceName string, optfunc ...RpcOptionFunc) *KoalaClient {
@@ -38,21 +39,23 @@ func NewKoalaClient(serviceName string, optfunc ...RpcOptionFunc) *KoalaClient {
 		opt(client.opts)
 	}
 
-	initRegistryOnce.Do(func(){
+	initRegistryOnce.Do(func() {
 		ctx := context.TODO()
-	registryInst, err := registry.InitRegistry(ctx,
-		client.opts.RegisterName,
-		registry.WithAddrs([]string{client.opts.RegisterAddr}),
-		registry.WithTimeout(time.Second),
-		registry.WithRegistryPath(client.opts.RegisterPath),
-		registry.WithHeartBeat(10),
-	)
-	if err != nil {
-		logs.Error(ctx, "init registry failed, err:%v", err)
-		return
-	}
-	client.register = registryInst
+		var err error
+		globalRegister, err = registry.InitRegistry(ctx,
+			client.opts.RegisterName,
+			registry.WithAddrs([]string{client.opts.RegisterAddr}),
+			registry.WithTimeout(time.Second),
+			registry.WithRegistryPath(client.opts.RegisterPath),
+			registry.WithHeartBeat(10),
+		)
+		if err != nil {
+			logs.Error(ctx, "init registry failed, err:%v", err)
+			return
+		}
 	})
+
+	client.register = globalRegister
 	return client
 }
 
