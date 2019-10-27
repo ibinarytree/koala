@@ -2,28 +2,57 @@ package rpc
 
 import (
 	"context"
+	"time"
+	"sync"
 
 	"github.com/ibinarytree/koala/meta"
+	"github.com/ibinarytree/koala/logs"
 	"github.com/ibinarytree/koala/middleware"
+	"github.com/ibinarytree/koala/loadbalance"
+	"github.com/ibinarytree/koala/registry"
 )
 
+var initRegistryOnce sync.Once
+
 type KoalaClient struct {
-	opts *RpcOptions
+	opts     *RpcOptions
+	register registry.Registry
+	balance loadbalance.LoadBalance
 }
 
-func NewKoalaClient(optfunc ...RpcOptionFunc) *KoalaClient {
+func NewKoalaClient(serviceName string, optfunc ...RpcOptionFunc) *KoalaClient {
 	client := &KoalaClient{
 		opts: &RpcOptions{
 			ConnTimeout:  DefaultConnTimeout,
 			WriteTimeout: DefaultWriteTimeout,
 			ReadTimeout:  DefaultReadTimeout,
+			ServiceName:  serviceName,
+			RegisterName: "etcd",
+			RegisterAddr: "127.0.0.1:2379",
+			RegisterPath: "/ibinarytree/koala/service/",
 		},
+		balance: loadbalance.NewRandomBalance(),
 	}
 
 	for _, opt := range optfunc {
 		opt(client.opts)
 	}
 
+	initRegistryOnce.Do(func(){
+		ctx := context.TODO()
+	registryInst, err := registry.InitRegistry(ctx,
+		client.opts.RegisterName,
+		registry.WithAddrs([]string{client.opts.RegisterAddr}),
+		registry.WithTimeout(time.Second),
+		registry.WithRegistryPath(client.opts.RegisterPath),
+		registry.WithHeartBeat(10),
+	)
+	if err != nil {
+		logs.Error(ctx, "init registry failed, err:%v", err)
+		return
+	}
+	client.register = registryInst
+	})
 	return client
 }
 
@@ -39,10 +68,9 @@ func (k *KoalaClient) getCaller(ctx context.Context) string {
 func (k *KoalaClient) buildMiddleware(handle middleware.MiddlewareFunc) middleware.MiddlewareFunc {
 
 	var mids []middleware.Middleware
-	if len(mids) == 0 {
-		return handle
-	}
-
+	mids = append(mids, middleware.NewDiscoveryMiddleware(k.register))
+	mids = append(mids, middleware.NewLoadBalanceMiddleware(k.balance))
+	mids = append(mids, middleware.ShortConnectMiddleware)
 	m := middleware.Chain(mids[0], mids...)
 	return m(handle)
 

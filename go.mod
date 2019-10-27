@@ -21,6 +21,8 @@ require (
 	github.com/ibinarytree/micro-kit v0.0.0-20190526160310-d1323c2426bc
 	github.com/ibinarytree/proto v1.6.14
 	github.com/jonboulle/clockwork v0.1.0 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/philhofer/fwd v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.2.1
@@ -37,6 +39,7 @@ require (
 	go.uber.org/zap v1.11.0 // indirect
 	golang.org/x/net v0.0.0-20191021144547-ec77196f6094
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
+	google.golang.org/appengine v1.4.0 // indirect
 	google.golang.org/grpc v1.24.0
 	gopkg.in/yaml.v2 v2.2.4
 	sigs.k8s.io/yaml v1.1.0 // indirect

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/ibinarytree/koala/registry"
+	"google.golang.org/grpc"
 )
 
 type RpcMeta struct {
@@ -31,7 +32,8 @@ type RpcMeta struct {
 	HistoryNodes []*registry.Node
 	//服务提供方的节点列表
 	AllNodes []*registry.Node
-	//
+	//当前请求使用的连接
+	Conn *grpc.ClientConn
 }
 
 type rpcMetaContextKey struct{}

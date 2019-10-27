@@ -21,6 +21,7 @@ func main() {
 	resp, err := client.SayHello(ctx, &hello.HelloRequest{Name: "test my client"})
 	if err != nil {
 		logs.Error(ctx, "could not greet: %v", err)
+		logs.Stop()
 		return
 	}
 

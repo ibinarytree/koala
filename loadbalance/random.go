@@ -4,6 +4,7 @@ import (
 	"context"
 	"math/rand"
 
+	"github.com/ibinarytree/koala/errno"
 	"github.com/ibinarytree/koala/registry"
 )
 
@@ -11,9 +12,9 @@ type RandomBalance struct {
 	name string
 }
 
-func NewRandomBalance() LoadBalance{
+func NewRandomBalance() LoadBalance {
 	return &RandomBalance{
-		name:"random",
+		name: "random",
 	}
 }
 
@@ -24,12 +25,24 @@ func (r *RandomBalance) Name() string {
 func (r *RandomBalance) Select(ctx context.Context, nodes []*registry.Node) (node *registry.Node, err error) {
 
 	if len(nodes) == 0 {
-		err = ErrNotHaveNodes
+		err = errno.NotHaveInstance
+		return
+	}
+
+	defer func() {
+		if node != nil {
+			setSelected(ctx, node)
+		}
+	}()
+
+	var newNodes  = filterNodes(ctx, nodes)
+	if len(newNodes) == 0 {
+		err = errno.AllNodeFailed
 		return
 	}
 
 	var totalWeight int
-	for _, val := range nodes {
+	for _, val := range newNodes {
 		if val.Weight == 0 {
 			val.Weight = DefaultNodeWeight
 		}
@@ -47,7 +60,7 @@ func (r *RandomBalance) Select(ctx context.Context, nodes []*registry.Node) (nod
 	}
 
 	if curIndex == -1 {
-		err = ErrNotHaveNodes
+		err = errno.AllNodeFailed
 		return
 	}
 
