@@ -1,14 +1,14 @@
 package main
 
 var rpcClientTemplate = `
-package {{.Package.Name}}c
+package {{.PackageName}}c
 
 
 import (
 	"context"
 	"fmt"
 
-	"{{.Prefix}}/generate/{{.Package.Name}}"
+	"{{.Prefix}}/generate/{{.ServiceNamePartsPath}}"
 	
 	"github.com/ibinarytree/koala/rpc"
 	"github.com/ibinarytree/koala/errno"
@@ -16,13 +16,13 @@ import (
 	
 )
 
-type {{Capitalize .Package.Name}}Client struct {
+type {{Capitalize .PackageName}}Client struct {
 	serviceName string
 	client *rpc.KoalaClient
 }
 
-func New{{Capitalize .Package.Name}}Client(serviceName string, opts...rpc.RpcOptionFunc) *{{Capitalize .Package.Name}}Client {
-	c :=  &{{Capitalize .Package.Name}}Client{
+func New{{Capitalize .PackageName}}Client(serviceName string, opts...rpc.RpcOptionFunc) *{{Capitalize .PackageName}}Client {
+	c :=  &{{Capitalize .PackageName}}Client{
 		serviceName: serviceName,
 	}
 	c.client = rpc.NewKoalaClient(serviceName, opts...)
@@ -30,7 +30,7 @@ func New{{Capitalize .Package.Name}}Client(serviceName string, opts...rpc.RpcOpt
 }
 
 {{range .Rpc}}
-func (s *{{Capitalize $.Package.Name}}Client) {{.Name}}(ctx context.Context, r*{{$.Package.Name}}.{{.RequestType}})(resp*{{$.Package.Name}}.{{.ReturnsType}}, err error){
+func (s *{{Capitalize $.PackageName}}Client) {{.Name}}(ctx context.Context, r*{{$.PackageName}}.{{.RequestType}})(resp*{{$.PackageName}}.{{.ReturnsType}}, err error){
 	/*
 	middlewareFunc := rpc.BuildClientMiddleware(mwClient{{.Name}})
 	mkResp, err := middlewareFunc(ctx, r)
@@ -42,9 +42,9 @@ func (s *{{Capitalize $.Package.Name}}Client) {{.Name}}(ctx context.Context, r*{
 	if err != nil {
 		return nil, err
 	}
-	resp, ok := mkResp.(*{{$.Package.Name}}.{{.ReturnsType}})
+	resp, ok := mkResp.(*{{$.PackageName}}.{{.ReturnsType}})
 	if !ok {
-		err = fmt.Errorf("invalid resp, not *{{$.Package.Name}}.{{.ReturnsType}}")
+		err = fmt.Errorf("invalid resp, not *{{$.PackageName}}.{{.ReturnsType}}")
 		return nil, err
 	}
 	
@@ -64,8 +64,8 @@ func mwClient{{.Name}}(ctx context.Context, request interface{}) (resp interface
 		return nil, errno.ConnFailed
 	}
 
-	req := request.(*{{$.Package.Name}}.{{.RequestType}})
-	client := {{$.Package.Name}}.New{{Capitalize $.Package.Name}}ServiceClient(rpcMeta.Conn)
+	req := request.(*{{$.PackageName}}.{{.RequestType}})
+	client := {{$.PackageName}}.New{{Capitalize $.PackageName}}ServiceClient(rpcMeta.Conn)
 	return client.{{.Name}}(ctx, req)
 }
 {{end}}
