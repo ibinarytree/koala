@@ -71,10 +71,13 @@ func (k *KoalaClient) getCaller(ctx context.Context) string {
 func (k *KoalaClient) buildMiddleware(handle middleware.MiddlewareFunc) middleware.MiddlewareFunc {
 
 	var mids []middleware.Middleware
+	mids = append(mids, middleware.HystrixMiddleware)
 	mids = append(mids, middleware.NewDiscoveryMiddleware(k.register))
+
 	mids = append(mids, middleware.NewLoadBalanceMiddleware(k.balance))
 	mids = append(mids, middleware.ShortConnectMiddleware)
-	m := middleware.Chain(mids[0], mids...)
+
+	m := middleware.Chain(mids[0], mids[1:]...)
 	return m(handle)
 
 }
