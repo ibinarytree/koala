@@ -5,14 +5,12 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"net/http"
 
 	"github.com/ibinarytree/koala/logs"
 	"github.com/ibinarytree/koala/middleware"
 	"github.com/ibinarytree/koala/registry"
 	_ "github.com/ibinarytree/koala/registry/etcd"
 	"github.com/ibinarytree/koala/util"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/time/rate"
 	"google.golang.org/grpc"
 
@@ -161,13 +159,14 @@ func initRegister(serviceName string) (err error) {
 }
 
 func Run() {
-	if koalaConf.Prometheus.SwitchOn {
-		go func() {
-			http.Handle("/metrics", promhttp.Handler())
-			addr := fmt.Sprintf("0.0.0.0:%d", koalaConf.Prometheus.Port)
-			log.Fatal(http.ListenAndServe(addr, nil))
-		}()
-	}
+	/*
+		if koalaConf.Prometheus.SwitchOn {
+			go func() {
+				http.Handle("/metrics", promhttp.Handler())
+				addr := fmt.Sprintf("0.0.0.0:%d", koalaConf.Prometheus.Port)
+				log.Fatal(http.ListenAndServe(addr, nil))
+			}()
+		}*/
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", koalaConf.Port))
 	if err != nil {

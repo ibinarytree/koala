@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ibinarytree/koala/logs"
+	"github.com/ibinarytree/koala/rpc"
 	"github.com/ibinarytree/koala/tools/koala/client_example/generate/client/helloc"
 	"github.com/ibinarytree/koala/tools/koala/client_example/generate/hello"
 )
@@ -17,7 +18,7 @@ const (
 )
 
 func main() {
-	client := helloc.NewHelloClient("hello")
+	client := helloc.NewHelloClient("hello", rpc.WithLimitQPS(5))
 	var count int
 	for {
 		count++

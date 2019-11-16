@@ -10,6 +10,7 @@ import (
 	"github.com/ibinarytree/koala/meta"
 	"github.com/ibinarytree/koala/middleware"
 	"github.com/ibinarytree/koala/registry"
+	"golang.org/x/time/rate"
 )
 
 var initRegistryOnce sync.Once
@@ -18,6 +19,7 @@ var globalRegister registry.Registry
 type KoalaClient struct {
 	opts     *RpcOptions
 	register registry.Registry
+	limiter  *rate.Limiter
 	balance  loadbalance.LoadBalance
 }
 
@@ -55,6 +57,11 @@ func NewKoalaClient(serviceName string, optfunc ...RpcOptionFunc) *KoalaClient {
 		}
 	})
 
+	if client.opts.MaxLimitQps > 0 {
+		client.limiter = rate.NewLimiter(rate.Limit(client.opts.MaxLimitQps),
+			client.opts.MaxLimitQps)
+	}
+
 	client.register = globalRegister
 	return client
 }
@@ -71,6 +78,12 @@ func (k *KoalaClient) getCaller(ctx context.Context) string {
 func (k *KoalaClient) buildMiddleware(handle middleware.MiddlewareFunc) middleware.MiddlewareFunc {
 
 	var mids []middleware.Middleware
+	mids = append(mids, middleware.RpcLogMiddleware)
+	mids = append(mids, middleware.PrometheusRpcMiddleware)
+	if k.limiter != nil {
+		mids = append(mids, middleware.NewRateLimitMiddleware(k.limiter))
+	}
+
 	mids = append(mids, middleware.HystrixMiddleware)
 	mids = append(mids, middleware.NewDiscoveryMiddleware(k.register))
 

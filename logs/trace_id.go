@@ -21,7 +21,7 @@ func GetTraceId(ctx context.Context) (traceId string) {
 
 	traceId, ok := ctx.Value(traceIdKey{}).(string)
 	if !ok {
-		traceId = "-"
+		traceId = GenTraceId()
 	}
 
 	return

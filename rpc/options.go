@@ -15,9 +15,17 @@ type RpcOptions struct {
 	RegisterAddr string
 	//注册中心路径
 	RegisterPath string
+	//限流的qps
+	MaxLimitQps int
 }
 
 type RpcOptionFunc func(opts *RpcOptions)
+
+func WithLimitQPS(qps int) RpcOptionFunc {
+	return func(opts *RpcOptions) {
+		opts.MaxLimitQps = qps
+	}
+}
 
 func WithConnTimeout(timeout time.Duration) RpcOptionFunc {
 	return func(opts *RpcOptions) {
