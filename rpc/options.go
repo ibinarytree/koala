@@ -17,6 +17,14 @@ type RpcOptions struct {
 	RegisterPath string
 	//限流的qps
 	MaxLimitQps int
+	//trace report address
+	TraceReportAddr string
+	//trace sample type
+	TraceSampleType string
+	//trace sample rate
+	TraceSampleRate float64
+	//clientServiceName
+	ClientServiceName string
 }
 
 type RpcOptionFunc func(opts *RpcOptions)
@@ -66,5 +74,29 @@ func WithRegisterAddr(addr string) RpcOptionFunc {
 func WithRegisterPath(path string) RpcOptionFunc {
 	return func(opts *RpcOptions) {
 		opts.RegisterPath = path
+	}
+}
+
+func WithTraceReportAddr(addr string) RpcOptionFunc {
+	return func(opts *RpcOptions) {
+		opts.TraceReportAddr = addr
+	}
+}
+
+func WithTraceSampleType(stype string) RpcOptionFunc {
+	return func(opts *RpcOptions) {
+		opts.TraceSampleType = stype
+	}
+}
+
+func WithTraceSampleRate(rate float64) RpcOptionFunc {
+	return func(opts *RpcOptions) {
+		opts.TraceSampleRate = rate
+	}
+}
+
+func WithClientServiceName(name string) RpcOptionFunc {
+	return func(opts *RpcOptions) {
+		opts.ClientServiceName = name
 	}
 }

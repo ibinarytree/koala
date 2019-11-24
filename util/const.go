@@ -1,5 +1,5 @@
 package util
 
 const (
-	TraceID = "koala_trace_id"
+	TraceID = "trace_id"
 )

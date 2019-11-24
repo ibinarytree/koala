@@ -26,13 +26,17 @@ type KoalaClient struct {
 func NewKoalaClient(serviceName string, optfunc ...RpcOptionFunc) *KoalaClient {
 	client := &KoalaClient{
 		opts: &RpcOptions{
-			ConnTimeout:  DefaultConnTimeout,
-			WriteTimeout: DefaultWriteTimeout,
-			ReadTimeout:  DefaultReadTimeout,
-			ServiceName:  serviceName,
-			RegisterName: "etcd",
-			RegisterAddr: "127.0.0.1:2379",
-			RegisterPath: "/ibinarytree/koala/service/",
+			ConnTimeout:       DefaultConnTimeout,
+			WriteTimeout:      DefaultWriteTimeout,
+			ReadTimeout:       DefaultReadTimeout,
+			ServiceName:       serviceName,
+			RegisterName:      "etcd",
+			RegisterAddr:      "127.0.0.1:2379",
+			RegisterPath:      "/ibinarytree/koala/service/",
+			TraceReportAddr:   "http://60.205.218.189:9411/api/v1/spans",
+			TraceSampleType:   "const",
+			TraceSampleRate:   1,
+			ClientServiceName: "default",
 		},
 		balance: loadbalance.NewRandomBalance(),
 	}
@@ -62,6 +66,8 @@ func NewKoalaClient(serviceName string, optfunc ...RpcOptionFunc) *KoalaClient {
 			client.opts.MaxLimitQps)
 	}
 
+	middleware.InitTrace(client.opts.ClientServiceName, client.opts.TraceReportAddr, client.opts.TraceSampleType,
+		client.opts.TraceSampleRate)
 	client.register = globalRegister
 	return client
 }
@@ -78,7 +84,9 @@ func (k *KoalaClient) getCaller(ctx context.Context) string {
 func (k *KoalaClient) buildMiddleware(handle middleware.MiddlewareFunc) middleware.MiddlewareFunc {
 
 	var mids []middleware.Middleware
+	mids = append(mids, middleware.PrepareMiddleware)
 	mids = append(mids, middleware.RpcLogMiddleware)
+	mids = append(mids, middleware.TraceRpcMiddleware)
 	mids = append(mids, middleware.PrometheusRpcMiddleware)
 	if k.limiter != nil {
 		mids = append(mids, middleware.NewRateLimitMiddleware(k.limiter))

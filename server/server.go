@@ -13,11 +13,6 @@ import (
 	"github.com/ibinarytree/koala/util"
 	"golang.org/x/time/rate"
 	"google.golang.org/grpc"
-
-	opentracing "github.com/opentracing/opentracing-go"
-	jaeger "github.com/uber/jaeger-client-go"
-	config "github.com/uber/jaeger-client-go/config"
-	"github.com/uber/jaeger-client-go/transport/zipkin"
 )
 
 type KoalaServer struct {
@@ -69,38 +64,8 @@ func initTrace(serviceName string) (err error) {
 		return
 	}
 
-	transport, err := zipkin.NewHTTPTransport(
-		koalaConf.Trace.ReportAddr,
-		zipkin.HTTPBatchSize(16),
-		zipkin.HTTPLogger(jaeger.StdLogger),
-	)
-	if err != nil {
-		logs.Error(context.TODO(), "ERROR: cannot init zipkin: %v\n", err)
-		return
-	}
-
-	cfg := &config.Configuration{
-		Sampler: &config.SamplerConfig{
-			Type:  koalaConf.Trace.SampleType,
-			Param: koalaConf.Trace.SampleRate,
-		},
-		Reporter: &config.ReporterConfig{
-			LogSpans: true,
-		},
-	}
-
-	r := jaeger.NewRemoteReporter(transport)
-	tracer, closer, err := cfg.New(serviceName,
-		config.Logger(jaeger.StdLogger),
-		config.Reporter(r))
-	if err != nil {
-		logs.Error(context.TODO(), "ERROR: cannot init Jaeger: %v\n", err)
-		return
-	}
-
-	_ = closer
-	opentracing.SetGlobalTracer(tracer)
-	return
+	return middleware.InitTrace(serviceName, koalaConf.Trace.ReportAddr,
+		koalaConf.Trace.SampleType, koalaConf.Trace.SampleRate)
 }
 
 func initLogger() (err error) {

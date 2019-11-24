@@ -5,6 +5,7 @@ import (
 
 	"github.com/ibinarytree/koala/logs"
 	"github.com/ibinarytree/koala/meta"
+	"github.com/ibinarytree/koala/util"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/opentracing/opentracing-go/log"
@@ -33,7 +34,7 @@ func TraceServerMiddleware(next MiddlewareFunc) MiddlewareFunc {
 			ext.RPCServerOption(parentSpanContext),
 		)
 
-		serverSpan.SetTag("trace_id", logs.GetTraceId(ctx))
+		serverSpan.SetTag(util.TraceID, logs.GetTraceId(ctx))
 		ctx = opentracing.ContextWithSpan(ctx, serverSpan)
 		resp, err = next(ctx, req)
 		//记录错误
@@ -42,8 +43,51 @@ func TraceServerMiddleware(next MiddlewareFunc) MiddlewareFunc {
 			serverSpan.LogFields(log.String("event", "error"), log.String("message", err.Error()))
 		}
 
-		
 		serverSpan.Finish()
+		return
+	}
+}
+
+func TraceRpcMiddleware(next MiddlewareFunc) MiddlewareFunc {
+	return func(ctx context.Context, req interface{}) (resp interface{}, err error) {
+
+		tracer := opentracing.GlobalTracer()
+		var parentSpanCtx opentracing.SpanContext
+		if parent := opentracing.SpanFromContext(ctx); parent != nil {
+			parentSpanCtx = parent.Context()
+		}
+
+		opts := []opentracing.StartSpanOption{
+			opentracing.ChildOf(parentSpanCtx),
+			ext.SpanKindRPCClient,
+			opentracing.Tag{Key: string(ext.Component), Value: "koala_rpc"},
+			opentracing.Tag{Key: util.TraceID, Value: logs.GetTraceId(ctx)},
+		}
+
+		rpcMeta := meta.GetRpcMeta(ctx)
+		clientSpan := tracer.StartSpan(rpcMeta.ServiceName, opts...)
+
+		md, ok := metadata.FromOutgoingContext(ctx)
+		if !ok {
+			md = metadata.Pairs()
+		}
+
+		if err := tracer.Inject(clientSpan.Context(), opentracing.HTTPHeaders, metadataTextMap(md)); err != nil {
+			logs.Debug(ctx, "grpc_opentracing: failed serializing trace information: %v", err)
+		}
+
+		ctx = metadata.NewOutgoingContext(ctx, md)
+		ctx = metadata.AppendToOutgoingContext(ctx, util.TraceID, logs.GetTraceId(ctx))
+		ctx = opentracing.ContextWithSpan(ctx, clientSpan)
+
+		resp, err = next(ctx, req)
+		//记录错误
+		if err != nil {
+			ext.Error.Set(clientSpan, true)
+			clientSpan.LogFields(log.String("event", "error"), log.String("message", err.Error()))
+		}
+
+		clientSpan.Finish()
 		return
 	}
 }

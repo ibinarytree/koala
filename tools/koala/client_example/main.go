@@ -18,7 +18,8 @@ const (
 )
 
 func main() {
-	client := helloc.NewHelloClient("hello", rpc.WithLimitQPS(5))
+	client := helloc.NewHelloClient("hello", rpc.WithLimitQPS(5),
+		rpc.WithClientServiceName("hello-client-example"))
 	var count int
 	for {
 		count++

@@ -19,9 +19,11 @@ func PrepareMiddleware(next MiddlewareFunc) MiddlewareFunc {
 			vals, ok := md[util.TraceID]
 			if ok && len(vals) > 0 {
 				traceId = vals[0]
-			} else {
-				traceId = logs.GenTraceId()
 			}
+		}
+
+		if len(traceId) == 0 {
+			traceId = logs.GenTraceId()
 		}
 
 		ctx = logs.WithFieldContext(ctx)

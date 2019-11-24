@@ -16,7 +16,7 @@ require (
 	github.com/google/btree v1.0.0 // indirect
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/gorilla/websocket v1.4.1 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0 // indirect
+	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.11.3 // indirect
 	github.com/ibinarytree/micro-kit v0.0.0-20190526160310-d1323c2426bc
@@ -40,7 +40,6 @@ require (
 	go.uber.org/zap v1.11.0 // indirect
 	golang.org/x/net v0.0.0-20191021144547-ec77196f6094
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
-	google.golang.org/appengine v1.4.0 // indirect
 	google.golang.org/grpc v1.24.0
 	gopkg.in/yaml.v2 v2.2.4
 	sigs.k8s.io/yaml v1.1.0 // indirect
