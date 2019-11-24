@@ -32,6 +32,7 @@ func TraceServerMiddleware(next MiddlewareFunc) MiddlewareFunc {
 		serverSpan := tracer.StartSpan(
 			serverMeta.Method,
 			ext.RPCServerOption(parentSpanContext),
+			ext.SpanKindRPCServer,
 		)
 
 		serverSpan.SetTag(util.TraceID, logs.GetTraceId(ctx))
