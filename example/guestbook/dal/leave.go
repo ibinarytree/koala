@@ -27,7 +27,11 @@ func (l *LeaveStoreMgr) GetLeave(ctx context.Context, offset, limit uint32) (res
 		return
 	}
 
-	result = l.leaveList[offset : offset+limit]
+	end := offset+limit
+	if end > uint32(len(l.leaveList)) {
+		end = uint32(len(l.leaveList))
+	}
+	result = l.leaveList[offset : end]
 	return
 }
 

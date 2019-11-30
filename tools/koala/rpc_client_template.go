@@ -65,7 +65,7 @@ func mwClient{{.Name}}(ctx context.Context, request interface{}) (resp interface
 	}
 
 	req := request.(*{{$.Package.Name}}.{{.RequestType}})
-	client := {{$.Package.Name}}.New{{Capitalize $.Package.Name}}ServiceClient(rpcMeta.Conn)
+	client := {{$.Package.Name}}.New{{$.Service.Name}}Client(rpcMeta.Conn)
 	return client.{{.Name}}(ctx, req)
 }
 {{end}}

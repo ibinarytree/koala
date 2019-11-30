@@ -1,6 +1,7 @@
 package model
 
 type Leave struct {
-	Email   string
-	Content string
+	Email     string
+	Content   string
+	Timestamp int64
 }
