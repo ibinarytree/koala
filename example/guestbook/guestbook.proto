@@ -1,0 +1,27 @@
+syntax = "proto3";
+package guestbook;
+
+message AddLeaveRequest {
+  Leave leave = 1;
+}
+message AddLeaveResponse{
+}
+message Leave {
+    string email = 1;
+    string content = 2;
+    uint64 timestamp = 3;
+}
+message GetLeaveRequest {
+    uint32 offset = 1;
+    uint32 limit =2;
+}
+message GetLeaveResponse {
+    repeated Leave leaves = 1;
+}
+
+service GuestBookService {
+  //添加留言
+  rpc AddLeave(AddLeaveRequest) returns (AddLeaveResponse){}
+  //查看留言
+  rpc GetLeave(GetLeaveRequest) returns (GetLeaveResponse){}
+}
