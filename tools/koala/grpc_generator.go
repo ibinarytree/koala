@@ -13,9 +13,9 @@ type GrpcGenerator struct {
 func (d *GrpcGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) {
 
 	//protoc --go_out=plugins=grpc:. hello.proto
-	dir := path.Join(opt.Output, "generate", metaData.Package.Name)
+	dir := path.Join(opt.Output, "generate", path.Join(metaData.serviceNameParts...))
 	os.MkdirAll(dir, 0755)
-	outputParams := fmt.Sprintf("plugins=grpc:%s/generate/%s", opt.Output, metaData.Package.Name)
+	outputParams := fmt.Sprintf("plugins=grpc:%s", dir)
 
 	cmd := exec.Command("protoc", "--go_out", outputParams, opt.Proto3Filename)
 	cmd.Stderr = os.Stderr

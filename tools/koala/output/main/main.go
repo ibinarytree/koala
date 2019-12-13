@@ -1,24 +1,22 @@
 package main
 
 import (
-	"context"
+	"log"
 
-	"github.com/ibinarytree/koala/logs"
 	"github.com/ibinarytree/koala/server"
 
 	"github.com/ibinarytree/koala/tools/koala/output/router"
 
-	"github.com/ibinarytree/koala/tools/koala/output/generate/hello"
+	"github.com/ibinarytree/koala/tools/koala/output/generate/com/google/hello"
 )
 
 var routerServer = &router.RouterServer{}
 
 func main() {
 
-	err := server.Init("hello")
+	err := server.Init("com.google.hello")
 	if err != nil {
-		logs.Error(context.TODO(), "init service failed, err:%v", err)
-		logs.Stop()
+		log.Fatal("init service failed, err:%v", err)
 		return
 	}
 

@@ -12,9 +12,9 @@ import(
 		"{{.Prefix}}/router"
 	{{end}}
 	{{if not .Prefix}}
-		"generate/{{.Package.Name}}"
+		"generate/{{.ServiceNamePartsPath}}"
 	{{else}}
-		"{{.Prefix}}/generate/{{.Package.Name}}"
+		"{{.Prefix}}/generate/{{.ServiceNamePartsPath}}"
 	{{end}}
 )
 
@@ -22,13 +22,13 @@ var routerServer = &router.RouterServer{}
 	
 func main() {
 
-	err := server.Init("{{.Package.Name}}")
+	err := server.Init("{{.ServiceName}}")
 	if err != nil {
 		log.Fatal("init service failed, err:%v", err)
 		return
 	}
 
-	{{.Package.Name}}.Register{{.Service.Name}}Server(server.GRPCServer(), routerServer)
+	{{.PackageName}}.Register{{.Service.Name}}Server(server.GRPCServer(), routerServer)
 	server.Run()
 }
 `

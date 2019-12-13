@@ -8,9 +8,9 @@ import(
 	"github.com/ibinarytree/koala/server"
 	"github.com/ibinarytree/koala/meta"
 	{{if not .Prefix}}
-		"generate/{{.Package.Name}}"
+		"generate/{{.ServiceNamePartsPath}}"
 	{{else}}
-		"{{.Prefix}}/generate/{{.Package.Name}}"
+		"{{.Prefix}}/generate/{{.ServiceNamePartsPath}}"
 	{{end}}
 	{{if not .Prefix}}
 	"controller"
@@ -22,23 +22,23 @@ import(
 type RouterServer struct{}
 
 {{range .Rpc}}
-func (s *RouterServer) {{.Name}}(ctx context.Context, r*{{$.Package.Name}}.{{.RequestType}})(resp*{{$.Package.Name}}.{{.ReturnsType}}, err error){
+func (s *RouterServer) {{.Name}}(ctx context.Context, r*{{$.PackageName}}.{{.RequestType}})(resp*{{$.PackageName}}.{{.ReturnsType}}, err error){
 	
-	ctx = meta.InitServerMeta(ctx,"{{$.Package.Name}}", "{{.Name}}")
+	ctx = meta.InitServerMeta(ctx,"{{$.PackageName}}", "{{.Name}}")
 	mwFunc := server.BuildServerMiddleware(mw{{.Name}})
 	mwResp, err := mwFunc(ctx, r)
 	if err != nil {
 		return
 	}
 	
-	resp = mwResp.(*{{$.Package.Name}}.{{.ReturnsType}})
+	resp = mwResp.(*{{$.PackageName}}.{{.ReturnsType}})
 	return
 }
 
 
 func mw{{.Name}}(ctx context.Context, request interface{}) (resp interface{}, err error) {
 	
-		r := request.(*{{$.Package.Name}}.{{.RequestType}})
+		r := request.(*{{$.PackageName}}.{{.RequestType}})
 		ctrl := &controller.{{.Name}}Controller{}
 		err = ctrl.CheckParams(ctx, r)
 		if err != nil {

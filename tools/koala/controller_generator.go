@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strings"
 	"text/template"
 
 	"github.com/ibinarytree/koala/util"
@@ -14,9 +15,10 @@ type CtrlGenerator struct {
 }
 
 type RpcMeta struct {
-	Rpc     *proto.RPC
-	Package *proto.Package
-	Prefix  string
+	Rpc *proto.RPC
+	//Package *proto.Package
+	//Prefix  string
+	*ServiceMetaData
 }
 
 func (d *CtrlGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) {
@@ -35,7 +37,7 @@ func (d *CtrlGenerator) generateRpc(opt *Option, metaData *ServiceMetaData) (err
 
 	for _, rpc := range metaData.Rpc {
 		var file *os.File
-		filename := path.Join(opt.Output, "controller", fmt.Sprintf("%s.go", rpc.Name))
+		filename := path.Join(opt.Output, "controller", fmt.Sprintf("%s.go", strings.ToLower(rpc.Name)))
 		fmt.Printf("filename is %s\n", filename)
 		exist := util.IsFileExist(filename)
 		if exist {
@@ -48,9 +50,10 @@ func (d *CtrlGenerator) generateRpc(opt *Option, metaData *ServiceMetaData) (err
 		}
 
 		rpcMeta := &RpcMeta{}
-		rpcMeta.Package = metaData.Package
 		rpcMeta.Rpc = rpc
-		rpcMeta.Prefix = metaData.Prefix
+		rpcMeta.ServiceMetaData = metaData
+		//rpcMeta.Package = metaData.Package
+		//rpcMeta.Prefix = metaData.Prefix
 
 		err = d.render(file, controller_template, rpcMeta)
 		if err != nil {

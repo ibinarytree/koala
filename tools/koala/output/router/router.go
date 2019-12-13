@@ -5,7 +5,9 @@ import (
 
 	"github.com/ibinarytree/koala/meta"
 	"github.com/ibinarytree/koala/server"
-	"github.com/ibinarytree/koala/tools/koala/output/generate/hello"
+
+	"github.com/ibinarytree/koala/tools/koala/output/generate/com/google/hello"
+
 	"github.com/ibinarytree/koala/tools/koala/output/controller"
 )
 

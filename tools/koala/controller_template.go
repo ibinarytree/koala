@@ -5,9 +5,9 @@ package controller
 import(
 	"context"
 	{{if not .Prefix}}
-		"generate/{{.Package.Name}}"
+		"generate/{{.ServiceNamePartsPath}}"
 	{{else}}
-		"{{.Prefix}}/generate/{{.Package.Name}}"
+		"{{.Prefix}}/generate/{{.ServiceNamePartsPath}}"
 	{{end}}
 )
 
@@ -16,13 +16,13 @@ type {{.Rpc.Name}}Controller struct {
 
 
 //检查请求参数，如果该函数返回错误，则Run函数不会执行
-func (s *{{.Rpc.Name}}Controller) CheckParams(ctx context.Context, r*{{.Package.Name}}.{{.Rpc.RequestType}}) (err error) {
+func (s *{{.Rpc.Name}}Controller) CheckParams(ctx context.Context, r*{{.PackageName}}.{{.Rpc.RequestType}}) (err error) {
 	return
 }
 
 //SayHello函数的实现
-func (s *{{.Rpc.Name}}Controller) Run(ctx context.Context, r*{{.Package.Name}}.{{.Rpc.RequestType}}) (
-	resp*{{.Package.Name}}.{{.Rpc.ReturnsType}}, err error) {
+func (s *{{.Rpc.Name}}Controller) Run(ctx context.Context, r*{{.PackageName}}.{{.Rpc.RequestType}}) (
+	resp*{{.PackageName}}.{{.Rpc.ReturnsType}}, err error) {
 	return
 }
 

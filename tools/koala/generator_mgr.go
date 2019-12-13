@@ -60,7 +60,26 @@ func (g *GeneratorMgr) parseService(opt *Option) (err error) {
 		proto.WithMessage(g.handleMessage),
 		proto.WithRPC(g.handleRPC),
 		proto.WithPackage(g.handlePackage),
+		proto.WithOption(g.handleOption),
 	)
+
+	//必须包含option go_package
+	if g.metaData.containGoPackage == false {
+		err = fmt.Errorf("must define option go_package=\"xxx\"")
+		return
+	}
+
+	partLen := len(g.metaData.serviceNameParts)
+	if partLen == 0 {
+		err = fmt.Errorf("package name is invalid")
+		return
+	}
+
+	lastPart := g.metaData.serviceNameParts[partLen-1]
+	if lastPart != g.metaData.PackageName {
+		err = fmt.Errorf("last part of service name must equal package name")
+		return
+	}
 
 	return
 }
@@ -77,8 +96,20 @@ func (g *GeneratorMgr) handleRPC(r *proto.RPC) {
 	g.metaData.Rpc = append(g.metaData.Rpc, r)
 }
 
+func (g *GeneratorMgr) handleOption(r *proto.Option) {
+
+	g.metaData.options = append(g.metaData.options, r)
+	if strings.ToLower(r.Name) == "go_package" {
+		g.metaData.containGoPackage = true
+		g.metaData.PackageName = r.Constant.Source
+	}
+}
+
 func (g *GeneratorMgr) handlePackage(r *proto.Package) {
 	g.metaData.Package = r
+	g.metaData.ServiceName = g.metaData.Package.Name
+	g.metaData.serviceNameParts = strings.Split(g.metaData.ServiceName, ".")
+	g.metaData.ServiceNamePartsPath = strings.Join(g.metaData.serviceNameParts, "/")
 }
 
 func (g *GeneratorMgr) createAllDir(opt *Option) (err error) {

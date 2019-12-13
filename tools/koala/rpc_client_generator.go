@@ -12,8 +12,14 @@ type RpcClientGenerator struct {
 
 func (d *RpcClientGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) {
 
-	packageName := fmt.Sprintf("%sc", metaData.Package.Name)
-	dir := path.Join(opt.Output, "generate", "client", packageName)
+	//所有生成的rpc client的包名都以c后缀结尾，最后一级目录加上c的后缀
+	packagePath := metaData.ServiceNamePartsPath
+	if packagePath[len(packagePath)-1] == '/' || packagePath[len(packagePath)-1] == '\\' {
+		packagePath = packagePath[:len(packagePath)-1]
+	}
+
+	packagePath = fmt.Sprintf("%sc", packagePath)
+	dir := path.Join(opt.Output, "generate", "client", packagePath)
 	os.MkdirAll(dir, 0755)
 
 	filename := path.Join(dir, "client.go")

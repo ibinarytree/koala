@@ -4,7 +4,7 @@ var config_template = `port: 8080
 prometheus:
   switch_on: true
   port: 8081
-service_name: {{.Package.Name}}
+service_name: {{.ServiceName}}
 register:
   switch_on: true
   register_path: /ibinarytree/koala/service/

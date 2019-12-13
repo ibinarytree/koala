@@ -1,5 +1,6 @@
 syntax = "proto3";
-package hello;
+package com.google.hello;
+option go_package="hello";
 
 message HelloRequest {
   string name = 1;
