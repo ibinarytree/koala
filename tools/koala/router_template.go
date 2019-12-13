@@ -12,7 +12,6 @@ import(
 	{{else}}
 		"{{.Prefix}}/generate/{{.Package.Name}}"
 	{{end}}
-
 	{{if not .Prefix}}
 	"controller"
 {{else}}

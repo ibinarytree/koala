@@ -1,7 +1,7 @@
-port: 8090
+port: 8080
 prometheus:
   switch_on: true
-  port: 8091
+  port: 8081
 service_name: hello
 register:
   switch_on: true

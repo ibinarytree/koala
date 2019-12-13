@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"runtime"
@@ -131,6 +132,20 @@ func (g *GeneratorMgr) initOutputDir(opt *Option) (err error) {
 	return
 }
 
+func (g*GeneratorMgr) fmtCode(opt* Option) {
+
+	cmd := exec.Command("gofmt", "-w", ".")
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
+	if err != nil {
+		fmt.Printf("warn:gofmt failed, err:%v\n", err)
+		return
+
+	}
+	return
+}
+
 func (g *GeneratorMgr) Run(opt *Option) (err error) {
 
 	err = g.initOutputDir(opt)
@@ -142,6 +157,11 @@ func (g *GeneratorMgr) Run(opt *Option) (err error) {
 	if err != nil {
 		return
 	}
+
+	defer func() {
+		//gofmt it
+		g.fmtCode(opt)
+	}()
 
 	g.metaData.Prefix = opt.Prefix
 	if opt.GenClientCode {
