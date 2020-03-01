@@ -25,8 +25,6 @@ var AllDirList []string = []string{
 	"scripts",
 	"conf/product",
 	"conf/test",
-	"app/router",
-	"app/config",
 	"model",
 	"generate",
 	"router",
@@ -163,7 +161,7 @@ func (g *GeneratorMgr) initOutputDir(opt *Option) (err error) {
 	return
 }
 
-func (g*GeneratorMgr) fmtCode(opt* Option) {
+func (g *GeneratorMgr) fmtCode(opt *Option) {
 
 	cmd := exec.Command("gofmt", "-w", ".")
 	cmd.Stderr = os.Stderr
