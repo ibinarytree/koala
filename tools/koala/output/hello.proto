@@ -12,5 +12,6 @@ message HelloResponse {
 
 service HelloService {
   //sayhello 方法
-  rpc SayHello(HelloRequest) returns (HelloResponse){}
+  rpc SayHello(HelloRequest) returns (stream HelloResponse){}
+  rpc SayHelloV2(HelloRequest) returns (HelloResponse){}
 }
