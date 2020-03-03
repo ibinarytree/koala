@@ -17,7 +17,7 @@ func (d *GrpcGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) 
 	os.MkdirAll(dir, 0755)
 	outputParams := fmt.Sprintf("plugins=grpc:%s", dir)
 
-	cmd := exec.Command("protoc", "--gofast_out", outputParams, opt.Proto3Filename)
+	cmd := exec.Command("protoc", "--go_out", outputParams, opt.Proto3Filename)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	err = cmd.Run()

@@ -151,7 +151,7 @@ func (g *GeneratorMgr) initOutputDir(opt *Option) (err error) {
 	}
 	//C:/project/src/xxx/
 	opt.Output = strings.ToLower(exeFilePath[0:lastIdx])
-	srcPath := path.Join(goPath, "src/")
+	srcPath := strings.ToLower(path.Join(goPath, "src/"))
 	if srcPath[len(srcPath)-1] != '/' {
 		srcPath = fmt.Sprintf("%s/", srcPath)
 	}
@@ -172,6 +172,28 @@ func (g *GeneratorMgr) fmtCode(opt *Option) {
 		return
 
 	}
+
+	//遍历当前目录，把所有go文件都用goimports 格式化
+	filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			return nil
+		}
+
+		if strings.HasSuffix(info.Name(), ".go") {
+			fmt.Printf("path:%s, name:%s\n", path, info.Name())
+			cmd := exec.Command("goimports", "-w", path)
+			cmd.Stderr = os.Stderr
+			cmd.Stdout = os.Stdout
+			err = cmd.Run()
+			if err != nil {
+				fmt.Printf("warn:goimports failed, err:%v\n", err)
+				return err
+			}
+			return nil
+		}
+
+		return nil
+	})
 	return
 }
 
