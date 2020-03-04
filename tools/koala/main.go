@@ -13,7 +13,7 @@ func main() {
 	var opt Option
 
 	app := cli.NewApp()
-	app.Version = "1.9.11"
+	app.Version = "1.9.12"
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
