@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 )
 
 type GrpcGenerator struct {
@@ -17,7 +18,9 @@ func (d *GrpcGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) 
 	os.MkdirAll(dir, 0755)
 	outputParams := fmt.Sprintf("plugins=grpc:%s", dir)
 
-	cmd := exec.Command("protoc", "--go_out", outputParams, opt.Proto3Filename)
+	idlDir, idlFilename := filepath.Split(opt.Proto3Filename)
+
+	cmd := exec.Command("protoc", "--go_out", outputParams, "--proto_path", idlDir, idlFilename)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	err = cmd.Run()
@@ -33,5 +36,4 @@ func init() {
 	gc := &GrpcGenerator{}
 
 	RegisterServerGenerator("grpc generator", gc)
-	RegisterClientGenerator("grpc generator", gc)
 }
