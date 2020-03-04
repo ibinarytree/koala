@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"runtime"
 	"text/template"
 )
 
@@ -30,15 +31,28 @@ func (d *ScriptGenerator) RendScript(opt *Option, metaData *ServiceMetaData, out
 
 func (d *ScriptGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) {
 
+
 	filename := "build.sh"
-	err = d.RendScript(opt, metaData, filename, build_template)
+	buildTemplate := build_template
+	if runtime.GOOS == "windows" {
+		filename = "build.bat"
+		buildTemplate = window_build_template
+	}
+
+	err = d.RendScript(opt, metaData, filename, buildTemplate)
 	if err != nil {
 		fmt.Printf("render:%s failed, err:%v\n", filename, err)
 		return
 	}
 
 	filename = "scripts/start.sh"
-	err = d.RendScript(opt, metaData, filename, start_template)
+	buildTemplate = start_template
+	if runtime.GOOS == "windows" {
+		filename = "scripts/start.bat"
+		buildTemplate = window_start_template
+	}
+
+	err = d.RendScript(opt, metaData, filename, buildTemplate)
 	if err != nil {
 		fmt.Printf("render:%s failed, err:%v\n", filename, err)
 		return

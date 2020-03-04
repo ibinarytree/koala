@@ -184,11 +184,7 @@ func (g *GeneratorMgr) fmtCode(opt *Option) {
 			cmd := exec.Command("goimports", "-w", path)
 			cmd.Stderr = os.Stderr
 			cmd.Stdout = os.Stdout
-			err = cmd.Run()
-			if err != nil {
-				fmt.Printf("warn:goimports failed, err:%v\n", err)
-				return err
-			}
+			_ = cmd.Run()
 			return nil
 		}
 
