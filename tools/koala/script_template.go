@@ -26,7 +26,7 @@ var start_template = `
 `
 
 var window_build_template = `
-
+@echo off
 set GO111MODULE=on
 IF NOT EXIST ./go.mod (
 go mod init
@@ -50,7 +50,7 @@ go build  -ldflags "-X 'main.BUILD_TIME=%DATE%' -X 'main.GO_VERSION=%GO_VERSION%
 `
 
 var window_start_template = `
-bin/{{.PackageName}}.exe
+bin\{{.PackageName}}.exe
 `
 
 
