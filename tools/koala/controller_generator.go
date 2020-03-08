@@ -37,7 +37,8 @@ func (d *CtrlGenerator) generateRpc(opt *Option, metaData *ServiceMetaData) (err
 
 	for _, rpc := range metaData.Rpc {
 		var file *os.File
-		filename := path.Join(opt.Output, "controller", fmt.Sprintf("%s.go", strings.ToLower(rpc.Name)))
+		tmpName := ToUnderScoreString(rpc.Name)
+		filename := path.Join(opt.Output, "controller", fmt.Sprintf("%s.go", strings.ToLower(tmpName)))
 		fmt.Printf("filename is %s\n", filename)
 		exist := util.IsFileExist(filename)
 		if exist {

@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
 	"strings"
 	"text/template"
+	"unicode"
 )
 
 var templateFuncMap = template.FuncMap{
@@ -25,4 +28,20 @@ func Capitalize(str string) string {
 		output += string(chars[i])
 	}
 	return output
+}
+
+func ToUnderScoreString(name string) string {
+	var buffer bytes.Buffer
+	for i, r := range name {
+		if unicode.IsUpper(r) {
+			if i != 0 {
+				buffer.WriteString("_")
+			}
+			buffer.WriteString(fmt.Sprintf("%c", unicode.ToLower(r)))
+		} else {
+			buffer.WriteString(fmt.Sprintf("%c", unicode.ToLower(r)))
+		}
+	}
+
+	return buffer.String()
 }
