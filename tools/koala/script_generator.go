@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"runtime"
 	"text/template"
 )
 
@@ -31,30 +30,27 @@ func (d *ScriptGenerator) RendScript(opt *Option, metaData *ServiceMetaData, out
 
 func (d *ScriptGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) {
 
-
-	filename := "build.sh"
-	buildTemplate := build_template
-	if runtime.GOOS == "windows" {
-		filename = "build.bat"
-		buildTemplate = window_build_template
-	}
-
-	err = d.RendScript(opt, metaData, filename, buildTemplate)
+	err = d.RendScript(opt, metaData, "build.sh", buildTemplate)
 	if err != nil {
-		fmt.Printf("render:%s failed, err:%v\n", filename, err)
+		fmt.Printf("render build.sh failed, err:%v\n", err)
 		return
 	}
 
-	filename = "scripts/start.sh"
-	buildTemplate = start_template
-	if runtime.GOOS == "windows" {
-		filename = "scripts/start.bat"
-		buildTemplate = window_start_template
+	err = d.RendScript(opt, metaData, "build.bat", windowBuildTemplate)
+	if err != nil {
+		fmt.Printf("render build.bat failed, err:%v\n", err)
+		return
 	}
 
-	err = d.RendScript(opt, metaData, filename, buildTemplate)
+	err = d.RendScript(opt, metaData, "scripts/start.sh", startTemplate)
 	if err != nil {
-		fmt.Printf("render:%s failed, err:%v\n", filename, err)
+		fmt.Printf("render start.sh failed, err:%v\n", err)
+		return
+	}
+
+	err = d.RendScript(opt, metaData, "scripts/start.bat", windowStartTemplate)
+	if err != nil {
+		fmt.Printf("render start.bat failed, err:%v\n", err)
 		return
 	}
 

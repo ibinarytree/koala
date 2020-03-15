@@ -1,6 +1,6 @@
 package main
 
-var build_template = `
+var buildTemplate = `
 #!/bin/bash
 
 export GO111MODULE=on
@@ -20,12 +20,12 @@ cd main
 go build  -ldflags "-X 'main.BUILD_TIME=` + "`date`" + `' -X 'main.GO_VERSION=` + "`go version`" + `' -X 'main.GIT_COMMIT=$GIT_COMMIT'" -o ../output/bin/{{.PackageName}}
 `
 
-var start_template = `
+var startTemplate = `
 #!/bin/bash
 ./bin/{{.PackageName}}
 `
 
-var window_build_template = `
+var windowBuildTemplate = `
 @echo off
 set GO111MODULE=on
 IF NOT EXIST ./go.mod (
@@ -49,8 +49,6 @@ go build  -ldflags "-X 'main.BUILD_TIME=%DATE%' -X 'main.GO_VERSION=%GO_VERSION%
 
 `
 
-var window_start_template = `
+var windowStartTemplate = `
 bin\{{.PackageName}}.exe
 `
-
-
