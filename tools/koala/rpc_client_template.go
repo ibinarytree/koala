@@ -8,8 +8,7 @@ import (
 	"context"
 	"fmt"
 
-	"{{.Prefix}}/generate/{{.ServiceNamePartsPath}}"
-	
+	"{{.ImportPath}}"
 	"github.com/ibinarytree/koala/rpc"
 	"github.com/ibinarytree/koala/errno"
 	"github.com/ibinarytree/koala/meta"
@@ -65,9 +64,36 @@ func mwClient{{.Name}}(ctx context.Context, request interface{}) (resp interface
 	}
 
 	req := request.(*{{$.PackageName}}.{{.RequestType}})
-	client := {{$.PackageName}}.New{{$.Service.Name}}ServiceClient(rpcMeta.Conn)
+	client := {{$.PackageName}}.New{{$.Service.Name}}Client(rpcMeta.Conn)
 
 	return client.{{.Name}}(ctx, req)
+}
+{{end}}
+`
+
+var grpcClientWrapTemplate = `
+package krpc
+
+import (
+	"context"
+	"fmt"
+
+	"{{.ClientImportPath}}"
+	"{{.ImportPath}}"
+)
+
+var (
+	k{{Capitalize .ClientPackageName}}Client *{{.ClientPackageName}}
+)
+
+func init() {
+
+	k{{Capitalize .ClientPackageName}}Client = {{.ClientPackageName}}.New{{Capitalize .PackageName}}Client("{{.ServiceName}}")
+}
+
+{{range .Rpc}}
+func {{Capitalize $.PackageName}}{{.Name}}(ctx context.Context, r*{{$.PackageName}}.{{.RequestType}})(resp*{{$.PackageName}}.{{.ReturnsType}}, err error){
+	return k{{Capitalize $.ClientPackageName}}Client.{{.Name}}(ctx, r)
 }
 {{end}}
 `

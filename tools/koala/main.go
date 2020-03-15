@@ -11,6 +11,8 @@ import (
 func main() {
 
 	var opt Option
+	var importFiles cli.StringSlice
+	var protoPaths cli.StringSlice
 
 	app := cli.NewApp()
 	app.Version = "1.9.15"
@@ -18,8 +20,8 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:        "f",
-			Value:       "./test.proto",
-			Usage:       "idl filename",
+			Usage:       "idl filename, May be specified multiple times",
+			Required:    true,
 			Destination: &opt.Proto3Filename,
 		},
 		cli.BoolFlag{
@@ -38,9 +40,27 @@ func main() {
 			Usage:       "prefix of package",
 			Destination: &opt.Prefix,
 		},
+		cli.StringSliceFlag{
+			Name:  "i",
+			Usage: "import proto file, Specify the proto file in which for proto file imports.May be specified multiple times",
+			Value: &importFiles,
+		},
+		cli.StringSliceFlag{
+			Name:  "proto_path",
+			Usage: "Specify the directory in which to search for imports.  May be specified multiple times",
+			Value: &protoPaths,
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
+
+		for _, file := range importFiles {
+			opt.ImportFiles = append(opt.ImportFiles, file)
+		}
+		for _, proto := range protoPaths {
+			opt.ProtoPaths = append(opt.ProtoPaths, proto)
+		}
+
 		//命令行程序代码的入口
 		err := genMgr.Run(&opt)
 		if err != nil {

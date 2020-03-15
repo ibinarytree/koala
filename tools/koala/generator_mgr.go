@@ -23,10 +23,10 @@ var AllDirList []string = []string{
 	"idl",
 	"main",
 	"scripts",
+	"rpc/grpc/clients",
 	"conf/product",
 	"conf/test",
 	"model",
-	"generate",
 	"router",
 }
 
@@ -67,18 +67,6 @@ func (g *GeneratorMgr) parseService(opt *Option) (err error) {
 		return
 	}
 
-	partLen := len(g.metaData.serviceNameParts)
-	if partLen == 0 {
-		err = fmt.Errorf("package name is invalid")
-		return
-	}
-
-	lastPart := g.metaData.serviceNameParts[partLen-1]
-	if lastPart != g.metaData.PackageName {
-		err = fmt.Errorf("last part of service name must equal package name")
-		return
-	}
-
 	return
 }
 
@@ -99,15 +87,15 @@ func (g *GeneratorMgr) handleOption(r *proto.Option) {
 	g.metaData.options = append(g.metaData.options, r)
 	if strings.ToLower(r.Name) == "go_package" {
 		g.metaData.containGoPackage = true
-		g.metaData.PackageName = r.Constant.Source
+		g.metaData.ImportPath = r.Constant.Source
+		segments := strings.Split(g.metaData.ImportPath, "/")
+		g.metaData.PackageName = segments[len(segments)-1]
 	}
 }
 
 func (g *GeneratorMgr) handlePackage(r *proto.Package) {
 	g.metaData.Package = r
 	g.metaData.ServiceName = g.metaData.Package.Name
-	g.metaData.serviceNameParts = strings.Split(g.metaData.ServiceName, ".")
-	g.metaData.ServiceNamePartsPath = strings.Join(g.metaData.serviceNameParts, "/")
 }
 
 func (g *GeneratorMgr) createAllDir(opt *Option) (err error) {
@@ -125,11 +113,11 @@ func (g *GeneratorMgr) createAllDir(opt *Option) (err error) {
 
 func (g *GeneratorMgr) initOutputDir(opt *Option) (err error) {
 
-	goPath := os.Getenv("GOPATH")
+	opt.GoPath = os.Getenv("GOPATH")
 	if len(opt.Prefix) > 0 {
 		//假如用户指定Prefix=github.com/ibinarytree/koala/example
 		//outputDir=$GOPATH/$Prefix
-		opt.Output = path.Join(goPath, "src", opt.Prefix)
+		opt.Output = path.Join(opt.GoPath, "src", opt.Prefix)
 		return
 	}
 
@@ -151,13 +139,13 @@ func (g *GeneratorMgr) initOutputDir(opt *Option) (err error) {
 	}
 	//C:/project/src/xxx/
 	opt.Output = strings.ToLower(exeFilePath[0:lastIdx])
-	srcPath := strings.ToLower(path.Join(goPath, "src/"))
+	srcPath := strings.ToLower(path.Join(opt.GoPath, "src/"))
 	if srcPath[len(srcPath)-1] != '/' {
 		srcPath = fmt.Sprintf("%s/", srcPath)
 	}
 	opt.Prefix = strings.Replace(opt.Output, srcPath, "", -1)
 
-	fmt.Printf("opt output:%s, prefix:%s, gopath:%s\n", opt.Output, opt.Prefix, goPath)
+	fmt.Printf("opt output:%s, prefix:%s, gopath:%s\n", opt.Output, opt.Prefix, opt.GoPath)
 	return
 }
 

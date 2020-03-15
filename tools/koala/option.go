@@ -6,4 +6,7 @@ type Option struct {
 	GenClientCode  bool
 	GenServerCode  bool
 	Prefix         string
+	GoPath         string
+	ImportFiles    []string
+	ProtoPaths     []string
 }

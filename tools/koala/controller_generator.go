@@ -23,13 +23,15 @@ type RpcMeta struct {
 
 func (d *CtrlGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) {
 
-	reader, err := os.Open(opt.Proto3Filename)
-	if err != nil {
-		fmt.Printf("open file:%s failed, err:%v\n", opt.Proto3Filename, err)
-		return
-	}
+	/*
+		reader, err := os.Open(opt.Proto3Filename)
+		if err != nil {
+			fmt.Printf("open file:%s failed, err:%v\n", opt.Proto3Filename, err)
+			return
+		}
 
-	defer reader.Close()
+		defer reader.Close()
+	*/
 	return d.generateRpc(opt, metaData)
 }
 

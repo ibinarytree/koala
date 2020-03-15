@@ -13,11 +13,7 @@ import(
 	{{else}}
 		"{{.Prefix}}/router"
 	{{end}}
-	{{if not .Prefix}}
-		"generate/{{.ServiceNamePartsPath}}"
-	{{else}}
-		"{{.Prefix}}/generate/{{.ServiceNamePartsPath}}"
-	{{end}}
+	"{{.ImportPath}}"
 )
 
 var routerServer = &router.RouterServer{}

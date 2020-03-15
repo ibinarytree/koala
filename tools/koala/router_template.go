@@ -8,11 +8,7 @@ import(
 
 	"github.com/ibinarytree/koala/server"
 	"github.com/ibinarytree/koala/meta"
-	{{if not .Prefix}}
-		"generate/{{.ServiceNamePartsPath}}"
-	{{else}}
-		"{{.Prefix}}/generate/{{.ServiceNamePartsPath}}"
-	{{end}}
+	"{{.ImportPath}}"
 	{{if not .Prefix}}
 	"controller"
 {{else}}

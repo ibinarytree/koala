@@ -5,22 +5,29 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"path/filepath"
 )
 
 type GrpcGenerator struct {
 }
 
-func (d *GrpcGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) {
+func (d *GrpcGenerator) run(opt *Option, metaData *ServiceMetaData, protoFile string) (err error) {
 
 	//protoc --go_out=plugins=grpc:. hello.proto
-	dir := path.Join(opt.Output, "generate", path.Join(metaData.serviceNameParts...))
+	dir := path.Join(opt.GoPath, "src")
 	os.MkdirAll(dir, 0755)
 	outputParams := fmt.Sprintf("plugins=grpc:%s", dir)
 
-	idlDir, idlFilename := filepath.Split(opt.Proto3Filename)
+	var params []string
+	params = append(params, "--go_out")
+	params = append(params, outputParams)
+	params = append(params, protoFile)
+	params = append(params, "-I", path.Dir(protoFile))
 
-	cmd := exec.Command("protoc", "--go_out", outputParams, "--proto_path", idlDir, idlFilename)
+	for _, val := range opt.ProtoPaths {
+		params = append(params, "-I", val)
+	}
+
+	cmd := exec.Command("protoc", params...)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	err = cmd.Run()
@@ -28,6 +35,25 @@ func (d *GrpcGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) 
 		fmt.Printf("grpc generator failed, err:%v\n", err)
 		return
 
+	}
+
+	return
+}
+
+func (d *GrpcGenerator) Run(opt *Option, metaData *ServiceMetaData) (err error) {
+
+	err = d.run(opt, metaData, opt.Proto3Filename)
+	if err != nil {
+		fmt.Printf("generate grpc:%s failed, err:%v\n", opt.Proto3Filename, err)
+		return
+	}
+
+	for _, file := range opt.ImportFiles {
+		err = d.run(opt, metaData, file)
+		if err != nil {
+			fmt.Printf("generate grpc:%s failed, err:%v\n", file, err)
+			return
+		}
 	}
 	return
 }

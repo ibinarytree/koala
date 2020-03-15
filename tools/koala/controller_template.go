@@ -4,11 +4,7 @@ var controller_template = `
 package controller
 import(
 	"context"
-	{{if not .Prefix}}
-		"generate/{{.ServiceNamePartsPath}}"
-	{{else}}
-		"{{.Prefix}}/generate/{{.ServiceNamePartsPath}}"
-	{{end}}
+	"{{.ImportPath}}"
 )
 
 type {{.Rpc.Name}}Controller struct {
