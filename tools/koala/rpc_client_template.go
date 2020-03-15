@@ -83,7 +83,7 @@ import (
 )
 
 var (
-	k{{Capitalize .ClientPackageName}}Client *{{.ClientPackageName}}.{{.Capitalize .PackageName}}Client
+	k{{Capitalize .ClientPackageName}}Client *{{.ClientPackageName}}.{{Capitalize .PackageName}}Client
 )
 
 func init() {
