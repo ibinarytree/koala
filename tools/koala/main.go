@@ -15,7 +15,7 @@ func main() {
 	var protoPaths cli.StringSlice
 
 	app := cli.NewApp()
-	app.Version = "1.9.15"
+	app.Version = "2.0.1"
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{

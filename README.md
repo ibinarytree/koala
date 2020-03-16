@@ -18,27 +18,54 @@ koala是一个基于grpc的高并发、高性能的微服务框架，提供了�
 
 
 # Usage 
-    1. 生成服务端代码
-    ```
-    koala -s -f xxx.proto
-    ```
-    2. 生成客户端代码
-    ```
-    koala -c -f xxx.proto
-    ```
-    3. 编译，生成代码之后，执行build.sh即可以编译。window执行build.bat
-    ```
-    ./build.sh 
-    ```
-    4. 运行，编译之后的二进制程序统一放到了output目录，执行output目录下的start.sh即可以启动运行。window执行start.bat
-    ```
-    cd output
-    ./start.sh
-    ```
-    5. 部署，把output目录打包成output.tar.gz，拷贝到服务端上，然后后台运行即可
-    ```
-    nohup ./start.sh&
-    ```
+1. 生成服务端代码
+
+hello.proto
+```
+syntax = "proto3";
+package hello;
+//使用go_package指定生成的代码路径，下面的代码将会生成到github.com/ibinarytree/hello/proto_gen/hello这个目录下；
+//大家可以根据自己项目的目录指定这个路径
+//一般建议大家把proto文件和生成的代码统一进行管理，放到一个单独的代码库中；
+option go_package="github.com/ibinarytree/hello/proto_gen/hello";
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloResponse {
+  string reply = 1;
+}
+
+service HelloService {
+  //sayhello 方法
+  rpc SayHello(HelloRequest) returns (HelloResponse){}
+}
+
+```
+生成代码
+```
+koala -s -f hello.proto
+```
+注意：如果hello.proto有import其他proto文件，需要通过proto_path指定引入的proto文件的目录，通过-i文件生成引入的proto文件代码。
+
+2. 生成客户端代码
+```
+koala -c -f hello.proto
+```
+3. 编译，生成代码之后，执行build.sh即可以编译。window执行build.bat
+```
+./build.sh 
+```
+4. 运行，编译之后的二进制程序统一放到了output目录，执行output目录下的start.sh即可以启动运行。window执行start.bat
+```
+cd output
+./start.sh
+```
+5. 部署，把output目录打包成output.tar.gz，拷贝到服务端上，然后后台运行即可
+```
+nohup ./start.sh&
+```
 # Question
 - 编译时，报etcd相关错误，比如:undefined: balancer.PickOptions；是因为grpc版本和etcd不兼容导致。解决方法如下：
 
