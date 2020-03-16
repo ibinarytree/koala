@@ -23,7 +23,7 @@ var AllDirList []string = []string{
 	"idl",
 	"main",
 	"scripts",
-	"rpc/grpc/clients",
+	"rpc/krpc/clients",
 	"conf/product",
 	"conf/test",
 	"model",
